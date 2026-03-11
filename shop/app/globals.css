@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+:root {
+  --persimmon-green: #005d99;
+  --persimmon-green-light: #1a7ab8;
+  --persimmon-green-dark: #004477;
+  --persimmon-navy: #002b49;
+  --persimmon-navy-light: #003d6b;
+  --persimmon-gray: #F4F6F8;
+  --persimmon-gray-dark: #E2E6EA;
+  --background: #F8FAFB;
+  --foreground: #1A1D21;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-persimmon-green: var(--persimmon-green);
+  --color-persimmon-green-light: var(--persimmon-green-light);
+  --color-persimmon-green-dark: var(--persimmon-green-dark);
+  --color-persimmon-navy: var(--persimmon-navy);
+  --color-persimmon-navy-light: var(--persimmon-navy-light);
+  --color-persimmon-gray: var(--persimmon-gray);
+  --color-persimmon-gray-dark: var(--persimmon-gray-dark);
+  --font-sans: var(--font-inter);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Modern scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Remove number input spinners */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Toast animation */
+@keyframes toast-in {
+  from { transform: translateY(100%) scale(0.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes toast-out {
+  from { transform: translateY(0) scale(1); opacity: 1; }
+  to { transform: translateY(100%) scale(0.95); opacity: 0; }
+}
+
+/* Drawer animation */
+@keyframes drawer-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes drawer-out {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Slide up for page elements */
+@keyframes slide-up {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Splash screen animations */
+@keyframes splash-icon-in {
+  0% { transform: scale(0.7) translateY(8px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+@keyframes splash-wordmark-in {
+  0% { transform: translateY(6px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes splash-exit {
+  0% { opacity: 1; }
+  100% { opacity: 0; pointer-events: none; }
+}
