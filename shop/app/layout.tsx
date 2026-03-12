@@ -10,6 +10,16 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Balfour Beatty Signage Portal",
   description: "Order construction signage for your Balfour Beatty development",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "BB Signage",
+  },
+  other: {
+    "msapplication-TileColor": "#005d99",
+    "theme-color": "#005d99",
+  },
 };
 
 export default function RootLayout({
