@@ -124,13 +124,16 @@ def detect_persimmon_region(image, template):
     return (expanded_x, y, expanded_w, rh), best_val
 
 
-def detect_persimmon_anywhere(image):
+def detect_persimmon_anywhere(image, allow_any_position=False):
     """Detect Persimmon logo by two-pass color detection.
 
     Pass 1: Narrow teal range finds the distinctive house icon (avoids false positives
             from green sign content sections).
     Pass 2: Broad green range scans only the icon's Y-band to find the full
             "Persimmon" text extent, building a complete bounding box.
+
+    If allow_any_position=True, skips the position filter and returns the largest
+    teal cluster found anywhere in the image.
     """
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     h_img, w_img = image.shape[:2]
@@ -159,16 +162,25 @@ def detect_persimmon_anywhere(image):
     if not candidates:
         return None, 'none'
 
-    # Check for Persimmon logo in top area or bottom-right
+    # Check for Persimmon logo — sorted by area descending
     for cx, cy, cw, ch, area in sorted(candidates, key=lambda c: -c[4]):
         center_y = cy + ch / 2
         center_x = cx + cw / 2
 
-        pos_type = None
-        if center_y < h_img * 0.20:
-            pos_type = 'top'
-        elif center_y > h_img * 0.65 and center_x > w_img * 0.4:
-            pos_type = 'bottom_right'
+        if allow_any_position:
+            # Accept any position
+            if center_y < h_img * 0.20:
+                pos_type = 'top'
+            elif center_y > h_img * 0.65 and center_x > w_img * 0.4:
+                pos_type = 'bottom_right'
+            else:
+                pos_type = 'mid'
+        else:
+            pos_type = None
+            if center_y < h_img * 0.20:
+                pos_type = 'top'
+            elif center_y > h_img * 0.65 and center_x > w_img * 0.4:
+                pos_type = 'bottom_right'
 
         if pos_type is None:
             continue
@@ -435,6 +447,68 @@ def load_bb_wordmark():
     return _bb_wordmark
 
 
+def clear_all_teal_regions(image):
+    """Find ALL Persimmon teal regions in the image, mask each with its local
+    background color, and return the list of cleared regions sorted by area.
+
+    Returns (result_image, regions) where regions is a list of (x, y, w, h) tuples.
+    """
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    h_img, w_img = image.shape[:2]
+    result = image.copy()
+
+    # Broad teal range to catch all Persimmon elements
+    teal_mask = cv2.inRange(hsv, np.array([70, 40, 20]), np.array([115, 255, 180]))
+
+    # Dilate to connect nearby teal pixels into coherent regions
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (7, 7))
+    teal_mask = cv2.dilate(teal_mask, kernel, iterations=2)
+
+    contours, _ = cv2.findContours(teal_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if not contours:
+        return result, []
+
+    regions = []
+    for c in contours:
+        area = cv2.contourArea(c)
+        if area < 80:
+            continue
+        x, y, cw, ch = cv2.boundingRect(c)
+        # Skip regions that span almost the entire image (probably background)
+        if cw > w_img * 0.85 and ch > h_img * 0.85:
+            continue
+        regions.append((x, y, cw, ch, area))
+
+    # Sort by area descending
+    regions.sort(key=lambda r: -r[4])
+
+    cleared = []
+    for x, y, cw, ch, area in regions:
+        pad = 4
+        mx = max(0, x - pad)
+        my = max(0, y - pad)
+        mrw = min(w_img - mx, cw + pad * 2)
+        mrh = min(h_img - my, ch + pad * 2)
+
+        # Sample background from edges
+        border = 5
+        samples = []
+        if my > border:
+            samples.extend(result[my-border:my, mx:mx+mrw].reshape(-1, 3).tolist())
+        if my+mrh+border < h_img:
+            samples.extend(result[my+mrh:my+mrh+border, mx:mx+mrw].reshape(-1, 3).tolist())
+        if mx > border:
+            samples.extend(result[my:my+mrh, mx-border:mx].reshape(-1, 3).tolist())
+        if mx+mrw+border < w_img:
+            samples.extend(result[my:my+mrh, mx+mrw:mx+mrw+border].reshape(-1, 3).tolist())
+
+        bg_color = np.median(samples, axis=0).astype(np.uint8) if samples else np.array([255, 255, 255], dtype=np.uint8)
+        result[my:my+mrh, mx:mx+mrw] = bg_color
+        cleared.append((mx, my, mrw, mrh))
+
+    return result, cleared
+
+
 def place_bb_wordmark(image, rx, ry, rw, rh):
     """Place the Balfour Beatty wordmark centered in the cleared region.
 
@@ -486,8 +560,13 @@ def place_bb_wordmark(image, rx, ry, rw, rh):
 
 # --- Main pipeline ---
 
-def process_sign(product_code, pdf, pdf_index, template, output_dir):
-    """Process a single sign: extract clean image + add BB logo."""
+def process_sign(product_code, pdf, pdf_index, template, output_dir, force_image_processing=False):
+    """Process a single sign: extract clean image + add BB logo.
+
+    If force_image_processing=True, skips raw PDF extraction and goes straight to
+    image processing with broad position detection (for signs with Persimmon baked
+    into the design itself).
+    """
     existing_path = os.path.join(PRODUCTS_DIR, f'{product_code.replace("/", "_")}.png')
     if not os.path.exists(existing_path):
         return 'missing', f'No existing image at {existing_path}'
@@ -499,54 +578,65 @@ def process_sign(product_code, pdf, pdf_index, template, output_dir):
     h_img, w_img = existing_img.shape[:2]
     safe_name = product_code.replace('/', '_')
 
-    # Step 1: Try raw PDF extraction (Workflow D)
-    pdf_result = find_sign_in_pdf(pdf, pdf_index, product_code)
+    # Step 1: Try raw PDF extraction (Workflow D) — skip if forced to image process
+    if not force_image_processing:
+        pdf_result = find_sign_in_pdf(pdf, pdf_index, product_code)
 
-    if pdf_result:
-        raw_img = pdf_result['raw_img']
+        if pdf_result:
+            raw_img = pdf_result['raw_img']
+            upscaled = cv2.resize(raw_img, (w_img, h_img), interpolation=cv2.INTER_LANCZOS4)
 
-        # Check if raw image is clean (no Persimmon logo)
-        # Use template matching on the upscaled raw image — much more reliable
-        # than teal color detection alone
-        upscaled = cv2.resize(raw_img, (w_img, h_img), interpolation=cv2.INTER_LANCZOS4)
+            raw_is_clean = True
+            if template is not None:
+                for rot_code in [None, cv2.ROTATE_90_CLOCKWISE, cv2.ROTATE_90_COUNTERCLOCKWISE, cv2.ROTATE_180]:
+                    check_img = cv2.rotate(upscaled, rot_code) if rot_code is not None else upscaled
+                    raw_region, raw_conf = detect_persimmon_region(check_img, template)
+                    if raw_region is not None and raw_conf >= 0.55:
+                        raw_is_clean = False
+                        break
+            if raw_is_clean:
+                # Broad color detection — check anywhere in the image
+                for rot_code in [None, cv2.ROTATE_90_CLOCKWISE, cv2.ROTATE_90_COUNTERCLOCKWISE, cv2.ROTATE_180]:
+                    check_img = cv2.rotate(upscaled, rot_code) if rot_code is not None else upscaled
+                    raw_color_region, raw_pos = detect_persimmon_anywhere(check_img, allow_any_position=True)
+                    if raw_color_region is not None:
+                        raw_is_clean = False
+                        break
 
-        raw_is_clean = True
-        if template is not None:
-            # Check all 4 rotations — some signs are rotated in the PDF
-            for rot_code in [None, cv2.ROTATE_90_CLOCKWISE, cv2.ROTATE_90_COUNTERCLOCKWISE, cv2.ROTATE_180]:
-                check_img = cv2.rotate(upscaled, rot_code) if rot_code is not None else upscaled
-                raw_region, raw_conf = detect_persimmon_region(check_img, template)
-                if raw_region is not None and raw_conf >= 0.55:
-                    raw_is_clean = False
-                    break
-        if raw_is_clean:
-            # Double-check with color-based detection on all rotations
-            for rot_code in [None, cv2.ROTATE_90_CLOCKWISE, cv2.ROTATE_90_COUNTERCLOCKWISE, cv2.ROTATE_180]:
-                check_img = cv2.rotate(upscaled, rot_code) if rot_code is not None else upscaled
-                raw_color_region, raw_pos = detect_persimmon_anywhere(check_img)
-                if raw_color_region is not None:
-                    raw_is_clean = False
-                    break
+            if raw_is_clean:
+                out_path = os.path.join(output_dir, f'{safe_name}.png')
+                cv2.imwrite(out_path, upscaled)
+                return 'raw_clean', 'Raw extraction (clean, no Persimmon)'
 
-        if raw_is_clean:
-            # Raw image has no Persimmon logo — use it directly
+    # Step 2: Image processing on existing PNG (Workflow B)
+    if force_image_processing:
+        # Clear ALL teal regions and place BB wordmark in the largest cleared area
+        result, cleared = clear_all_teal_regions(existing_img)
+        if not cleared:
             out_path = os.path.join(output_dir, f'{safe_name}.png')
-            cv2.imwrite(out_path, upscaled)
-            return 'raw_clean', 'Raw extraction (clean, no Persimmon)'
+            cv2.imwrite(out_path, existing_img)
+            return 'no_logo', 'No teal regions found — copied unchanged'
 
-    # Step 2: Fallback — image processing on existing PNG (Workflow B)
-    # Detect Persimmon logo by template matching
+        # Place BB wordmark in the largest cleared region
+        largest = max(cleared, key=lambda r: r[2] * r[3])
+        result = place_bb_wordmark(result, *largest)
+
+        out_path = os.path.join(output_dir, f'{safe_name}.png')
+        cv2.imwrite(out_path, result)
+        return 'img_processed', f'Cleared {len(cleared)} teal regions'
+
+    # Standard single-region detection
     region = None
     conf = 0
     if template is not None:
         region, conf = detect_persimmon_region(existing_img, template)
 
     if region is None or conf < 0.55:
-        # Try color-based detection
         region, pos_type = detect_persimmon_anywhere(existing_img)
+        if region is None:
+            region, pos_type = detect_persimmon_anywhere(existing_img, allow_any_position=True)
 
     if region is None:
-        # No Persimmon logo found — copy unchanged
         out_path = os.path.join(output_dir, f'{safe_name}.png')
         cv2.imwrite(out_path, existing_img)
         return 'no_logo', 'No Persimmon logo detected — copied unchanged'
@@ -555,14 +645,12 @@ def process_sign(product_code, pdf, pdf_index, template, output_dir):
     x, y, rw, rh = region
     result = existing_img.copy()
 
-    # Expand mask region by a few pixels to catch any edge remnants
     pad = 4
     mx = max(0, x - pad)
     my = max(0, y - pad)
     mrw = min(w_img - mx, rw + pad * 2)
     mrh = min(h_img - my, rh + pad * 2)
 
-    # Sample background from edges around the expanded region
     border = 5
     samples = []
     if my > border:
@@ -576,10 +664,7 @@ def process_sign(product_code, pdf, pdf_index, template, output_dir):
 
     bg_color = np.median(samples, axis=0).astype(np.uint8) if samples else np.array([255, 255, 255], dtype=np.uint8)
 
-    # Clean fill over the expanded region
     result[my:my+mrh, mx:mx+mrw] = bg_color
-
-    # Place Balfour Beatty wordmark in the cleared area
     result = place_bb_wordmark(result, mx, my, mrw, mrh)
 
     out_path = os.path.join(output_dir, f'{safe_name}.png')
@@ -593,6 +678,7 @@ def main():
     parser.add_argument('--offset', type=int, default=0, help='Start from sign index N (0-based)')
     parser.add_argument('--codes', nargs='+', help='Process specific product codes')
     parser.add_argument('--preview', action='store_true', help='Save to preview dir instead of overwriting')
+    parser.add_argument('--force-image', action='store_true', help='Skip raw PDF extraction, force image processing with broad detection')
     args = parser.parse_args()
 
     output_dir = PREVIEW_DIR if args.preview else PRODUCTS_DIR
@@ -636,7 +722,8 @@ def main():
 
     for i, code in enumerate(codes):
         safe = code.replace('/', '_')
-        status, msg = process_sign(code, pdf, pdf_index, template, output_dir)
+        status, msg = process_sign(code, pdf, pdf_index, template, output_dir,
+                                    force_image_processing=args.force_image)
         stats[status] += 1
 
         symbol = {'raw_clean': 'D', 'img_processed': 'B', 'no_logo': '-', 'missing': '?', 'error': '!'}
