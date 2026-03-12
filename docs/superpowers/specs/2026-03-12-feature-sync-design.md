@@ -44,12 +44,30 @@ ALTER TABLE bal_sites ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "service_bal_contacts" ON bal_contacts FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "service_bal_sites" ON bal_sites FOR ALL USING (true) WITH CHECK (true);
 
+-- Add awaiting_po to the status CHECK constraint
+ALTER TABLE bal_orders DROP CONSTRAINT IF EXISTS bal_orders_status_check;
+ALTER TABLE bal_orders ADD CONSTRAINT bal_orders_status_check
+  CHECK (status IN ('new','awaiting_po','in-progress','completed','cancelled'));
+
 ALTER TABLE bal_orders ADD COLUMN IF NOT EXISTS contact_id UUID REFERENCES bal_contacts(id);
 ALTER TABLE bal_orders ADD COLUMN IF NOT EXISTS site_id UUID REFERENCES bal_sites(id);
 CREATE INDEX IF NOT EXISTS idx_bal_orders_contact_id ON bal_orders(contact_id);
 CREATE INDEX IF NOT EXISTS idx_bal_orders_site_id ON bal_orders(site_id);
 
+-- Safety no-op: custom_data already exists in the base schema but included for environments
+-- where the column may have been dropped or never created
 ALTER TABLE bal_order_items ADD COLUMN IF NOT EXISTS custom_data JSONB DEFAULT NULL;
+```
+
+Rollback (if needed):
+```sql
+ALTER TABLE bal_orders DROP CONSTRAINT IF EXISTS bal_orders_status_check;
+ALTER TABLE bal_orders ADD CONSTRAINT bal_orders_status_check
+  CHECK (status IN ('new','in-progress','completed','cancelled'));
+ALTER TABLE bal_orders DROP COLUMN IF EXISTS contact_id;
+ALTER TABLE bal_orders DROP COLUMN IF EXISTS site_id;
+DROP TABLE IF EXISTS bal_contacts CASCADE;
+DROP TABLE IF EXISTS bal_sites CASCADE;
 ```
 
 ## 2. New API Routes
@@ -123,6 +141,10 @@ Add to the existing admin page:
 - "Awaiting PO" option in status dropdown
 - Clear nest error on order expand/collapse
 
+### `shop/app/api/orders/[orderNumber]/route.ts`
+
+Add `"awaiting_po"` to the `validStatuses` array in the PATCH handler so the admin status dropdown can set this status.
+
 ## 4. Replaced Pages
 
 ### `shop/app/(shop)/checkout/page.tsx`
@@ -154,17 +176,62 @@ Full replacement — copy Persimmon's version as-is. Key features being added:
 | `shop/app/api/orders/[orderNumber]/send-to-nest/route.ts` | New | `psp_` → `bal_`, `brand: "balfour"` |
 | `shop/lib/email.ts` | Modify | Add `buildNestPOEmailHtml`, `generateRaisePoToken`, update `itemRowsHtml` |
 | `shop/app/api/orders/route.ts` | Modify | Add contactId/siteId, Make webhook |
+| `shop/app/api/orders/[orderNumber]/route.ts` | Modify | Add `awaiting_po` to validStatuses |
 | `shop/app/(shop)/admin/page.tsx` | Modify | Send to Nest, awaiting_po status |
 | `shop/app/(shop)/checkout/page.tsx` | Replace | Contact/site dropdowns |
 | `shop/app/(shop)/orders/page.tsx` | Replace | Bento cards, contact pills |
 
-## 6. Environment Variables Required
+## 6. Webhook Details
+
+### Payload schema (shared with Persimmon, plus `brand`)
+
+All webhook calls include these fields:
+
+```json
+{
+  "brand": "balfour",
+  "isPO": false,
+  "emailSubject": "PO Request — BAL-20260312-XXXX — Site Name",
+  "emailHtml": "<div>...</div>",
+  "orderNumber": "BAL-20260312-XXXX",
+  "contactName": "...",
+  "contactEmail": "...",
+  "contactPhone": "...",
+  "siteName": "...",
+  "siteAddress": "...",
+  "poNumber": "...",
+  "notes": "...",
+  "subtotal": 100.00,
+  "vat": 20.00,
+  "total": 120.00,
+  "itemCount": 3,
+  "hasCustomItems": false
+}
+```
+
+- **Orders POST** (`isPO: false`): also includes `raisePoUrl` — the signed link for the email "Raise PO" button
+- **Raise PO GET** (`isPO: true`): no `raisePoUrl` (PO is being raised right now)
+- **Send to Nest POST** (`isPO: true`): no `raisePoUrl` (admin-initiated send)
+
+Make.com differentiates these by `isPO` (initial notification vs PO action) and `brand` (Persimmon vs Balfour routing).
+
+### Error handling
+
+Webhook calls in the **Orders POST** handler are fire-and-forget: `.catch(e => console.error(...))`. The order saves and emails send regardless of webhook success.
+
+Webhook calls in **raise-po** and **send-to-nest** check `res.ok` and return errors to the caller if the webhook fails, since the webhook IS the primary action in those routes.
+
+### Raise PO rendering
+
+The raise-po route uses `buildNestPOEmailHtml(orderData, siteUrl)` (without `raisePoUrl`) to build the webhook email HTML. The confirmation and "already raised" pages visible to the user are separate inline HTML templates with Balfour brand colors.
+
+## 7. Environment Variables Required
 
 | Variable | Purpose |
 |----------|---------|
 | `MAKE_WEBHOOK_URL` | Make.com webhook URL (shared with Persimmon) |
 | `RAISE_PO_SECRET` | HMAC secret for raise-po email links |
 
-## 7. Verification
+## 8. Verification
 
 After implementation, run `next build` to confirm no TypeScript/build errors. Full functional testing per the guide's checklist requires the database migration and env vars to be in place.
