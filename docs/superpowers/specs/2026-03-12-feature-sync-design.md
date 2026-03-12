@@ -61,11 +61,13 @@ ALTER TABLE bal_order_items ADD COLUMN IF NOT EXISTS custom_data JSONB DEFAULT N
 
 Rollback (if needed):
 ```sql
+DROP INDEX IF EXISTS idx_bal_orders_contact_id;
+DROP INDEX IF EXISTS idx_bal_orders_site_id;
+ALTER TABLE bal_orders DROP COLUMN IF EXISTS contact_id;
+ALTER TABLE bal_orders DROP COLUMN IF EXISTS site_id;
 ALTER TABLE bal_orders DROP CONSTRAINT IF EXISTS bal_orders_status_check;
 ALTER TABLE bal_orders ADD CONSTRAINT bal_orders_status_check
   CHECK (status IN ('new','in-progress','completed','cancelled'));
-ALTER TABLE bal_orders DROP COLUMN IF EXISTS contact_id;
-ALTER TABLE bal_orders DROP COLUMN IF EXISTS site_id;
 DROP TABLE IF EXISTS bal_contacts CASCADE;
 DROP TABLE IF EXISTS bal_sites CASCADE;
 ```
@@ -213,7 +215,7 @@ All webhook calls include these fields:
 - **Raise PO GET** (`isPO: true`): no `raisePoUrl` (PO is being raised right now)
 - **Send to Nest POST** (`isPO: true`): no `raisePoUrl` (admin-initiated send)
 
-Make.com differentiates these by `isPO` (initial notification vs PO action) and `brand` (Persimmon vs Balfour routing).
+There are two distinct Make.com handling paths: `isPO: false` (initial order notification) and `isPO: true` (PO action). Both raise-po and send-to-nest send `isPO: true` because they trigger the same downstream flow — sending the order to Nest for PO processing. The `brand` field routes Persimmon vs Balfour to different recipients/channels.
 
 ### Error handling
 
