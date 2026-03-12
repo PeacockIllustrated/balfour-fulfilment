@@ -43,7 +43,7 @@ export default function SplashScreen() {
       {/* Wordmark */}
       <div style={{ animation: "splash-wordmark-in 0.6s ease-out 0.4s both" }}>
         <Image
-          src="/assets/persimmon_wordmark.svg"
+          src="/assets/balfour_wordmark.svg"
           alt="Balfour Beatty"
           width={160}
           height={23}

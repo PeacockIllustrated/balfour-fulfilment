@@ -25,7 +25,7 @@ export default function Header() {
             />
             <div className="flex flex-col">
               <Image
-                src="/assets/persimmon_wordmark.svg"
+                src="/assets/balfour_wordmark.svg"
                 alt="Balfour Beatty"
                 width={90}
                 height={13}

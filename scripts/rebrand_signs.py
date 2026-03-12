@@ -28,6 +28,7 @@ PDF_PATH = os.path.join(PROJECT_ROOT, 'BROCHURE & PRICELIST',
 PRODUCTS_DIR = os.path.join(PROJECT_ROOT, 'shop', 'public', 'images', 'products')
 PREVIEW_DIR = os.path.join(SCRIPT_DIR, 'test_output', 'rebrand_preview')
 BB_LOGO_SVG = os.path.join(PROJECT_ROOT, 'shop', 'public', 'assets', 'balfour_icon.svg')
+BB_WORDMARK_SVG = os.path.join(PROJECT_ROOT, 'shop', 'public', 'assets', 'balfour_wordmark.svg')
 MAPPING_PATH = os.path.join(SCRIPT_DIR, 'image_mapping.json')
 
 CODE_PATTERN = re.compile(r'(P(?:CF|A)[A-Z]*\d+\w*(?:/[A-Z0-9]+)*)')
@@ -412,6 +413,77 @@ def add_bb_logo_to_image(image, position='top_center', region=None):
     return result
 
 
+# --- BB Wordmark placement ---
+
+_bb_wordmark = None
+
+def load_bb_wordmark():
+    """Render the Balfour Beatty wordmark SVG to a BGRA numpy array (cached)."""
+    global _bb_wordmark
+    if _bb_wordmark is None:
+        doc = fitz.open(BB_WORDMARK_SVG)
+        page = doc[0]
+        # Render at high resolution (10x) so downscaling stays crisp
+        mat = fitz.Matrix(10, 10)
+        pix = page.get_pixmap(matrix=mat, alpha=True)
+        doc.close()
+        # Convert RGBA PIL -> BGRA numpy for OpenCV compositing
+        pil_img = Image.frombytes("RGBA", [pix.width, pix.height], pix.samples)
+        rgba = np.array(pil_img)
+        bgra = cv2.cvtColor(rgba, cv2.COLOR_RGBA2BGRA)
+        _bb_wordmark = bgra
+    return _bb_wordmark
+
+
+def place_bb_wordmark(image, rx, ry, rw, rh):
+    """Place the Balfour Beatty wordmark centered in the cleared region.
+
+    Scales the wordmark to fit within the region height with padding,
+    then centers it horizontally within the region.
+    """
+    wm = load_bb_wordmark()
+    if wm is None:
+        return image
+
+    h_img, w_img = image.shape[:2]
+    wm_h, wm_w = wm.shape[:2]
+
+    # Target height: 65% of cleared region height (leave vertical padding)
+    target_h = max(4, int(rh * 0.65))
+    scale = target_h / wm_h
+    target_w = int(wm_w * scale)
+
+    # Don't let it exceed 90% of region width
+    if target_w > rw * 0.9:
+        scale = (rw * 0.9) / wm_w
+        target_h = int(wm_h * scale)
+        target_w = int(wm_w * scale)
+
+    if target_w < 4 or target_h < 4:
+        return image
+
+    # Resize wordmark
+    wm_resized = cv2.resize(wm, (target_w, target_h), interpolation=cv2.INTER_AREA)
+
+    # Center in the cleared region
+    ox = rx + (rw - target_w) // 2
+    oy = ry + (rh - target_h) // 2
+
+    # Clamp to image bounds
+    if ox < 0 or oy < 0 or ox + target_w > w_img or oy + target_h > h_img:
+        return image
+
+    # Alpha composite onto the image
+    alpha = wm_resized[:, :, 3] / 255.0
+    for c in range(3):
+        image[oy:oy+target_h, ox:ox+target_w, c] = (
+            alpha * wm_resized[:, :, c] +
+            (1 - alpha) * image[oy:oy+target_h, ox:ox+target_w, c]
+        ).astype(np.uint8)
+
+    return image
+
+
 # --- Main pipeline ---
 
 def process_sign(product_code, pdf, pdf_index, template, output_dir):
@@ -506,6 +578,9 @@ def process_sign(product_code, pdf, pdf_index, template, output_dir):
 
     # Clean fill over the expanded region
     result[my:my+mrh, mx:mx+mrw] = bg_color
+
+    # Place Balfour Beatty wordmark in the cleared area
+    result = place_bb_wordmark(result, mx, my, mrw, mrh)
 
     out_path = os.path.join(output_dir, f'{safe_name}.png')
     cv2.imwrite(out_path, result)

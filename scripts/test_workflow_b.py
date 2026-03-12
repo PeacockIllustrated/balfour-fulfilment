@@ -15,7 +15,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 PRODUCTS_DIR = os.path.join(PROJECT_ROOT, 'shop', 'public', 'images', 'products')
 OUTPUT_DIR = os.path.join(SCRIPT_DIR, 'test_output', 'workflow_b')
-BB_LOGO_SVG = os.path.join(PROJECT_ROOT, 'shop', 'public', 'assets', 'persimmon_full_logo.svg')
+BB_LOGO_SVG = os.path.join(PROJECT_ROOT, 'shop', 'public', 'assets', 'balfour_full_logo.svg')
 
 # Test images: top-center logo, bottom-right logo, no logo
 TEST_IMAGES = ['PA100.png', 'PA535.png', 'PCF128.png']

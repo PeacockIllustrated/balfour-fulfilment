@@ -29,9 +29,9 @@ Keep the CSS class names as-is (`text-persimmon-green`, `bg-persimmon-navy`). On
 ### Logos
 
 Replace these files with Balfour Beatty SVGs/PNGs (I will provide the files):
-- `shop/public/assets/persimmon_icon.svg` — Square icon
-- `shop/public/assets/persimmon_wordmark.svg` — Text logo
-- `shop/public/assets/persimmon_full_logo.svg` — Combined logo
+- `shop/public/assets/balfour_icon.svg` — Square icon
+- `shop/public/assets/balfour_wordmark.svg` — Text logo
+- `shop/public/assets/balfour_full_logo.svg` — Combined logo
 - `shop/app/icon.svg` — Favicon
 - `shop/app/apple-icon.png` — Touch icon (180x180 PNG)
 

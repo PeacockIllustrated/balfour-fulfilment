@@ -22,7 +22,7 @@ PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 PDF_PATH = os.path.join(PROJECT_ROOT, 'BROCHURE & PRICELIST', 'Onesign Signs_Site Signage Catalogue_January2026.pdf')
 PRODUCTS_DIR = os.path.join(PROJECT_ROOT, 'shop', 'public', 'images', 'products')
 OUTPUT_DIR = os.path.join(SCRIPT_DIR, 'test_output', 'workflow_c')
-BB_LOGO_SVG = os.path.join(PROJECT_ROOT, 'shop', 'public', 'assets', 'persimmon_full_logo.svg')
+BB_LOGO_SVG = os.path.join(PROJECT_ROOT, 'shop', 'public', 'assets', 'balfour_full_logo.svg')
 
 # Product code pattern
 CODE_PATTERN = re.compile(r'(P(?:CF|A)[A-Z]*\d+\w*(?:/[A-Z0-9]+)*)')

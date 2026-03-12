@@ -37,9 +37,9 @@ Replace the CSS custom property values using the table above. Also update the Ta
 #### 1.2 Logos — `shop/public/assets/`
 
 Replace these 3 SVGs with Balfour Beatty equivalents:
-- `persimmon_icon.svg` — Square icon (header, splash screen, favicon)
-- `persimmon_wordmark.svg` — Text logo (header)
-- `persimmon_full_logo.svg` — Combined logo (available but currently unused)
+- `balfour_icon.svg` — Square icon (header, splash screen, favicon)
+- `balfour_wordmark.svg` — Text logo (header)
+- `balfour_full_logo.svg` — Combined logo (available but currently unused)
 
 Also replace:
 - `shop/app/icon.svg` — Favicon
