@@ -95,3 +95,40 @@ export async function GET(
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ orderNumber: string }> }
+) {
+  if (!(await isAdminAuthed())) {
+    return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
+  }
+
+  try {
+    const { orderNumber } = await params;
+
+    const { data: order, error: lookupError } = await supabase
+      .from("bal_orders")
+      .select("id")
+      .eq("order_number", orderNumber)
+      .single();
+
+    if (lookupError || !order) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+
+    // Delete order items first, then the order
+    await supabase.from("bal_order_items").delete().eq("order_id", order.id);
+    const { error } = await supabase.from("bal_orders").delete().eq("id", order.id);
+
+    if (error) {
+      console.error("Delete order error:", error);
+      return NextResponse.json({ error: "Failed to delete order" }, { status: 500 });
+    }
+
+    return NextResponse.json({ message: "Order deleted" });
+  } catch (error) {
+    console.error("Error deleting order:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}

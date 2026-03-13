@@ -53,6 +53,7 @@ export default function AdminPage() {
   const [sugFilter, setSugFilter] = useState("all");
   const [sendingToNest, setSendingToNest] = useState<string | null>(null);
   const [nestError, setNestError] = useState<string | null>(null);
+  const [deletingOrder, setDeletingOrder] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/orders")
@@ -106,6 +107,25 @@ export default function AdminPage() {
     setOrders((prev) =>
       prev.map((o) => (o.orderNumber === orderNumber ? { ...o, status: newStatus } : o))
     );
+  };
+
+  const deleteOrder = async (orderNumber: string) => {
+    if (!confirm(`Permanently delete ${orderNumber}? This cannot be undone.`)) return;
+    setDeletingOrder(orderNumber);
+    try {
+      const res = await fetch(`/api/orders/${orderNumber}`, { method: "DELETE" });
+      if (res.ok) {
+        setOrders((prev) => prev.filter((o) => o.orderNumber !== orderNumber));
+        setExpandedOrder(null);
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to delete order");
+      }
+    } catch {
+      alert("Network error — please try again");
+    } finally {
+      setDeletingOrder(null);
+    }
   };
 
   const sendToNest = async (orderNumber: string) => {
@@ -360,6 +380,13 @@ export default function AdminPage() {
                           <option value="in-progress">In Progress</option>
                           <option value="completed">Completed</option>
                         </select>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); deleteOrder(order.orderNumber); }}
+                          disabled={deletingOrder === order.orderNumber}
+                          className="px-3 py-1.5 text-sm text-red-500 border border-red-200 rounded-xl hover:bg-red-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {deletingOrder === order.orderNumber ? "Deleting..." : "Delete"}
+                        </button>
                       </div>
                     </div>
                     {nestError && expandedOrder === order.orderNumber && (
