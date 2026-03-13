@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { sendOrderConfirmation, sendTeamNotification } from "@/lib/email";
+import { sendOrderConfirmation, sendTeamNotification, buildNestPOEmailHtml, generateRaisePoToken } from "@/lib/email";
 import { isShopAuthed, isAdminAuthed } from "@/lib/auth";
 
 function generateOrderNumber(): string {
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { contactName, email, phone, siteName, siteAddress, poNumber, notes, items } = body;
+    const { contactName, email, phone, siteName, siteAddress, poNumber, notes, items, contactId, siteId } = body;
 
     // Validation
     if (!contactName || !email || !phone || !siteName || !siteAddress || !items?.length) {
@@ -100,6 +100,8 @@ export async function POST(req: NextRequest) {
         site_address: String(siteAddress),
         po_number: poNumber ? String(poNumber) : null,
         notes: notes ? String(notes) : null,
+        contact_id: contactId || null,
+        site_id: siteId || null,
         subtotal,
         vat,
         total,
@@ -143,9 +145,46 @@ export async function POST(req: NextRequest) {
       total,
     };
 
+    // Send emails + fire Make webhook in parallel
+    const siteUrl = process.env.SITE_URL || "http://localhost:3000";
+    const makeWebhookUrl = process.env.MAKE_WEBHOOK_URL;
+
     await Promise.all([
       sendOrderConfirmation(emailData).catch((e) => console.error("Confirmation email failed:", e)),
       sendTeamNotification(emailData).catch((e) => console.error("Team notification failed:", e)),
+      makeWebhookUrl
+        ? (() => {
+            const token = generateRaisePoToken(orderNumber);
+            const raisePoUrl = `${siteUrl}/api/orders/${orderNumber}/raise-po?t=${token}`;
+            const { subject, html } = buildNestPOEmailHtml(emailData, siteUrl, raisePoUrl);
+            return fetch(makeWebhookUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                brand: "balfour",
+                isPO: false,
+                emailSubject: subject,
+                emailHtml: html,
+                raisePoUrl,
+                orderNumber,
+                contactName: String(contactName),
+                contactEmail: String(email),
+                contactPhone: String(phone),
+                siteName: String(siteName),
+                siteAddress: String(siteAddress),
+                poNumber: poNumber ? String(poNumber) : null,
+                notes: notes ? String(notes) : null,
+                subtotal,
+                vat,
+                total,
+                itemCount: validatedItems.length,
+                hasCustomItems: validatedItems.some((i: { custom_data: unknown }) => !!i.custom_data),
+              }),
+            })
+              .then((r) => console.log(`Make webhook fired for ${orderNumber} — ${r.status}`))
+              .catch((e) => console.error("Make webhook failed:", e));
+          })()
+        : Promise.resolve(),
     ]);
 
     console.log(`Order ${orderNumber} saved to Supabase — £${total.toFixed(2)}`);
@@ -185,6 +224,8 @@ export async function GET() {
       orderNumber: o.order_number,
       createdAt: o.created_at,
       status: o.status,
+      contactId: o.contact_id || null,
+      siteId: o.site_id || null,
       contact: { contactName: o.contact_name, email: o.email, phone: o.phone },
       site: { siteName: o.site_name, siteAddress: o.site_address },
       poNumber: o.po_number,
