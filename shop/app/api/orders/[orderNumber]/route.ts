@@ -14,7 +14,7 @@ export async function PATCH(
     const { orderNumber } = await params;
     const body = await req.json();
 
-    const validStatuses = ["new", "in-progress", "completed", "cancelled"];
+    const validStatuses = ["new", "awaiting_po", "in-progress", "completed", "cancelled"];
     if (body.status && !validStatuses.includes(body.status)) {
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
