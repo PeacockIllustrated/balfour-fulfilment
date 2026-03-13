@@ -1,23 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useBasket } from "@/components/BasketContext";
 import Link from "next/link";
+
+interface Contact {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+}
+
+interface Site {
+  id: string;
+  name: string;
+  address: string;
+}
 
 export default function CheckoutPage() {
   const { items, totalPrice, clearBasket } = useBasket();
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({
-    contactName: "",
-    email: "",
-    phone: "",
-    siteName: "",
-    siteAddress: "",
-    poNumber: "",
-    notes: "",
-  });
+
+  // Saved records
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [sites, setSites] = useState<Site[]>([]);
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [selectedSite, setSelectedSite] = useState<Site | null>(null);
+
+  // "Add new" form state
+  const [showNewContact, setShowNewContact] = useState(false);
+  const [showNewSite, setShowNewSite] = useState(false);
+  const [newContact, setNewContact] = useState({ name: "", email: "", phone: "" });
+  const [newSite, setNewSite] = useState({ name: "", address: "" });
+  const [savingContact, setSavingContact] = useState(false);
+  const [savingSite, setSavingSite] = useState(false);
+
+  // Free-text fields
+  const [poNumber, setPoNumber] = useState("");
+  const [notes, setNotes] = useState("");
+
+  // Fetch contacts and sites on mount
+  useEffect(() => {
+    fetch("/api/contacts").then((r) => r.json()).then((d) => setContacts(d.contacts || [])).catch(() => {});
+    fetch("/api/sites").then((r) => r.json()).then((d) => setSites(d.sites || [])).catch(() => {});
+  }, []);
 
   if (items.length === 0) {
     return (
@@ -31,8 +59,89 @@ export default function CheckoutPage() {
     );
   }
 
+  const canSubmit = selectedContact && selectedSite && !submitting;
+
+  const handleContactSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    if (val === "__new__") {
+      setSelectedContact(null);
+      setShowNewContact(true);
+      return;
+    }
+    setShowNewContact(false);
+    const contact = contacts.find((c) => c.id === val) || null;
+    setSelectedContact(contact);
+  };
+
+  const handleSiteSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    if (val === "__new__") {
+      setSelectedSite(null);
+      setShowNewSite(true);
+      return;
+    }
+    setShowNewSite(false);
+    const site = sites.find((s) => s.id === val) || null;
+    setSelectedSite(site);
+  };
+
+  const saveNewContact = async () => {
+    if (!newContact.name.trim() || !newContact.email.trim() || !newContact.phone.trim()) {
+      alert("Please fill in all contact fields.");
+      return;
+    }
+    setSavingContact(true);
+    try {
+      const res = await fetch("/api/contacts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newContact),
+      });
+      if (res.ok) {
+        const saved: Contact = await res.json();
+        setContacts((prev) => {
+          const exists = prev.some((c) => c.id === saved.id);
+          const updated = exists ? prev : [...prev, saved].sort((a, b) => a.name.localeCompare(b.name));
+          return updated;
+        });
+        setSelectedContact(saved);
+        setShowNewContact(false);
+        setNewContact({ name: "", email: "", phone: "" });
+      }
+    } catch { /* ignore */ }
+    setSavingContact(false);
+  };
+
+  const saveNewSite = async () => {
+    if (!newSite.name.trim() || !newSite.address.trim()) {
+      alert("Please fill in all site fields.");
+      return;
+    }
+    setSavingSite(true);
+    try {
+      const res = await fetch("/api/sites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newSite),
+      });
+      if (res.ok) {
+        const saved: Site = await res.json();
+        setSites((prev) => {
+          const exists = prev.some((s) => s.id === saved.id);
+          const updated = exists ? prev : [...prev, saved].sort((a, b) => a.name.localeCompare(b.name));
+          return updated;
+        });
+        setSelectedSite(saved);
+        setShowNewSite(false);
+        setNewSite({ name: "", address: "" });
+      }
+    } catch { /* ignore */ }
+    setSavingSite(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!canSubmit) return;
     setSubmitting(true);
 
     try {
@@ -40,7 +149,15 @@ export default function CheckoutPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...form,
+          contactName: selectedContact.name,
+          email: selectedContact.email,
+          phone: selectedContact.phone,
+          siteName: selectedSite.name,
+          siteAddress: selectedSite.address,
+          contactId: selectedContact.id,
+          siteId: selectedSite.id,
+          poNumber,
+          notes,
           items: items.map((item) => ({
             code: item.code,
             baseCode: item.baseCode,
@@ -73,10 +190,7 @@ export default function CheckoutPage() {
     }
   };
 
-  const updateField = (field: string, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
-
+  const selectClass = "w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-persimmon-green/15 focus:border-persimmon-green outline-none transition bg-white appearance-none cursor-pointer";
   const inputClass = "w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-persimmon-green/15 focus:border-persimmon-green outline-none transition bg-white";
 
   return (
@@ -91,47 +205,92 @@ export default function CheckoutPage() {
 
       <form onSubmit={handleSubmit} className="grid md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
+
+          {/* Contact section */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
             <h2 className="text-base font-semibold text-persimmon-navy mb-5">Contact Details</h2>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1.5">Contact Name *</label>
-                <input required type="text" value={form.contactName} onChange={(e) => updateField("contactName", e.target.value)} className={inputClass} />
+            <select value={selectedContact?.id || (showNewContact ? "__new__" : "")} onChange={handleContactSelect} className={selectClass}>
+              <option value="" disabled>Select a contact...</option>
+              {contacts.map((c) => (
+                <option key={c.id} value={c.id}>{c.name} ({c.email})</option>
+              ))}
+              <option value="__new__">+ Add new contact</option>
+            </select>
+
+            {selectedContact && !showNewContact && (
+              <div className="mt-3 px-1 text-sm text-gray-500 space-y-0.5">
+                <p className="font-medium text-gray-700">{selectedContact.name}</p>
+                <p>{selectedContact.email}</p>
+                <p>{selectedContact.phone}</p>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1.5">Email *</label>
-                <input required type="email" value={form.email} onChange={(e) => updateField("email", e.target.value)} className={inputClass} />
+            )}
+
+            {showNewContact && (
+              <div className="mt-4 border-2 border-dashed border-persimmon-green rounded-xl p-4 bg-emerald-50/30">
+                <p className="text-sm font-semibold text-persimmon-navy mb-3">New Contact</p>
+                <div className="grid sm:grid-cols-3 gap-3">
+                  <input type="text" placeholder="Name *" value={newContact.name} onChange={(e) => setNewContact((p) => ({ ...p, name: e.target.value }))} className={inputClass} />
+                  <input type="email" placeholder="Email *" value={newContact.email} onChange={(e) => setNewContact((p) => ({ ...p, email: e.target.value }))} className={inputClass} />
+                  <input type="tel" placeholder="Phone *" value={newContact.phone} onChange={(e) => setNewContact((p) => ({ ...p, phone: e.target.value }))} className={inputClass} />
+                </div>
+                <div className="flex justify-end gap-2 mt-3">
+                  <button type="button" onClick={() => { setShowNewContact(false); setNewContact({ name: "", email: "", phone: "" }); }} className="px-4 py-2 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition">Cancel</button>
+                  <button type="button" onClick={saveNewContact} disabled={savingContact} className="px-4 py-2 text-sm text-white bg-persimmon-green rounded-lg font-medium hover:bg-persimmon-green-dark transition disabled:opacity-50">{savingContact ? "Saving..." : "Save Contact"}</button>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1.5">Phone *</label>
-                <input required type="tel" value={form.phone} onChange={(e) => updateField("phone", e.target.value)} className={inputClass} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1.5">PO Number</label>
-                <input type="text" value={form.poNumber} onChange={(e) => updateField("poNumber", e.target.value)} className={inputClass} placeholder="Optional" />
-              </div>
-            </div>
+            )}
           </div>
 
+          {/* Site section */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
             <h2 className="text-base font-semibold text-persimmon-navy mb-5">Site Details</h2>
+            <select value={selectedSite?.id || (showNewSite ? "__new__" : "")} onChange={handleSiteSelect} className={selectClass}>
+              <option value="" disabled>Select a site...</option>
+              {sites.map((s) => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+              <option value="__new__">+ Add new site</option>
+            </select>
+
+            {selectedSite && !showNewSite && (
+              <div className="mt-3 px-1 text-sm text-gray-500 space-y-0.5">
+                <p className="font-medium text-gray-700">{selectedSite.name}</p>
+                <p>{selectedSite.address}</p>
+              </div>
+            )}
+
+            {showNewSite && (
+              <div className="mt-4 border-2 border-dashed border-persimmon-green rounded-xl p-4 bg-emerald-50/30">
+                <p className="text-sm font-semibold text-persimmon-navy mb-3">New Site</p>
+                <div className="space-y-3">
+                  <input type="text" placeholder="Site Name *" value={newSite.name} onChange={(e) => setNewSite((p) => ({ ...p, name: e.target.value }))} className={inputClass} />
+                  <textarea placeholder="Site Address *" value={newSite.address} onChange={(e) => setNewSite((p) => ({ ...p, address: e.target.value }))} rows={2} className={inputClass} />
+                </div>
+                <div className="flex justify-end gap-2 mt-3">
+                  <button type="button" onClick={() => { setShowNewSite(false); setNewSite({ name: "", address: "" }); }} className="px-4 py-2 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition">Cancel</button>
+                  <button type="button" onClick={saveNewSite} disabled={savingSite} className="px-4 py-2 text-sm text-white bg-persimmon-green rounded-lg font-medium hover:bg-persimmon-green-dark transition disabled:opacity-50">{savingSite ? "Saving..." : "Save Site"}</button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* PO Number & Notes */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-6">
+            <h2 className="text-base font-semibold text-persimmon-navy mb-5">Order Details</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1.5">Site Name *</label>
-                <input required type="text" value={form.siteName} onChange={(e) => updateField("siteName", e.target.value)} className={inputClass} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1.5">Site Address *</label>
-                <textarea required value={form.siteAddress} onChange={(e) => updateField("siteAddress", e.target.value)} rows={2} className={inputClass} />
+                <label className="block text-sm font-medium text-gray-600 mb-1.5">PO Number</label>
+                <input type="text" value={poNumber} onChange={(e) => setPoNumber(e.target.value)} className={inputClass} placeholder="Optional" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600 mb-1.5">Special Instructions</label>
-                <textarea value={form.notes} onChange={(e) => updateField("notes", e.target.value)} rows={3} className={inputClass} placeholder="Any special requirements or notes..." />
+                <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} className={inputClass} placeholder="Any special requirements or notes..." />
               </div>
             </div>
           </div>
         </div>
 
+        {/* Order summary sidebar */}
         <div>
           <div className="bg-white rounded-2xl border border-gray-100 p-6 sticky top-24">
             <h2 className="text-base font-semibold text-persimmon-navy mb-4">Order Summary</h2>
@@ -181,11 +340,18 @@ export default function CheckoutPage() {
 
             <button
               type="submit"
-              disabled={submitting}
+              disabled={!canSubmit}
               className="w-full mt-6 bg-persimmon-green text-white py-3 rounded-xl font-medium hover:bg-persimmon-green-dark transition disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
             >
               {submitting ? "Submitting Order..." : "Submit Order"}
             </button>
+
+            {!selectedContact && !showNewContact && (
+              <p className="text-[11px] text-amber-600 mt-3 text-center">Please select or add a contact to continue.</p>
+            )}
+            {!selectedSite && !showNewSite && selectedContact && (
+              <p className="text-[11px] text-amber-600 mt-3 text-center">Please select or add a site to continue.</p>
+            )}
 
             <p className="text-[11px] text-gray-400 mt-3 text-center leading-relaxed">
               All prices exclude VAT. You will receive a confirmation email.
