@@ -94,14 +94,14 @@ export default async function ProductPage({
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="font-medium text-gray-900">
-                      {variant.size || variant.description}
-                    </p>
-                    {variant.material && (
-                      <p className="text-sm text-gray-400 mt-0.5">{variant.material}</p>
-                    )}
-                    <p className="text-xs text-gray-300 mt-1">
                       {variant.code}
                     </p>
+                    {(variant.size || variant.description) && (
+                      <p className="text-sm text-gray-400 mt-0.5">{variant.size || variant.description}</p>
+                    )}
+                    {variant.material && (
+                      <p className="text-sm text-gray-400">{variant.material}</p>
+                    )}
                   </div>
                   <div className="text-right">
                     <p className="text-2xl font-bold text-persimmon-navy">
