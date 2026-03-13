@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { isAdminAuthed } from "@/lib/auth";
 import { buildNestPOEmailHtml } from "@/lib/email";
+import { generateDeliveryNotePdf } from "@/lib/delivery-note";
 
 export async function POST(
   _req: NextRequest,
@@ -73,6 +74,13 @@ export async function POST(
     const siteUrl = process.env.SITE_URL || "http://localhost:3000";
     const { subject, html } = buildNestPOEmailHtml(orderData, siteUrl);
 
+    let deliveryNotePdf: string | null = null;
+    try {
+      deliveryNotePdf = await generateDeliveryNotePdf(orderData);
+    } catch (e) {
+      console.error("Delivery note PDF generation failed:", e);
+    }
+
     // Fire Make webhook with isPO: true
     const res = await fetch(makeWebhookUrl, {
       method: "POST",
@@ -95,6 +103,7 @@ export async function POST(
         total: Number(order.total),
         itemCount: (items || []).length,
         hasCustomItems: (items || []).some((i: Record<string, unknown>) => !!i.custom_data),
+        deliveryNotePdf,
       }),
     });
 
