@@ -24,6 +24,8 @@ interface Order {
   orderNumber: string;
   createdAt: string;
   status: string;
+  contactId: string | null;
+  siteId: string | null;
   contact: { contactName: string; email: string; phone: string };
   site: { siteName: string; siteAddress: string };
   poNumber: string | null;
@@ -36,6 +38,7 @@ interface Order {
 
 const statusConfig: Record<string, { label: string; color: string; description: string }> = {
   new: { label: "New", color: "bg-blue-50 text-blue-600", description: "Order received and awaiting review" },
+  "awaiting_po": { label: "Awaiting PO", color: "bg-yellow-50 text-yellow-600", description: "Order sent for purchase order approval" },
   "in-progress": { label: "In Progress", color: "bg-amber-50 text-amber-600", description: "Being processed by our team" },
   completed: { label: "Completed", color: "bg-emerald-50 text-emerald-600", description: "Order fulfilled" },
   cancelled: { label: "Cancelled", color: "bg-gray-100 text-gray-500", description: "Order cancelled" },
@@ -47,6 +50,8 @@ export default function OrdersPage() {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [selectedSiteId, setSelectedSiteId] = useState<string | null>(null);
+  const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<{ src: string; code: string } | null>(null);
 
   useEffect(() => {
@@ -59,8 +64,38 @@ export default function OrdersPage() {
       .catch(() => setLoading(false));
   }, []);
 
+  const contactCards = useMemo(() => {
+    const contactMap = new Map<string, { contactId: string; name: string; email: string; orderCount: number }>();
+    for (const o of orders) {
+      if (!o.contactId) continue;
+      let entry = contactMap.get(o.contactId);
+      if (!entry) {
+        entry = { contactId: o.contactId, name: o.contact.contactName, email: o.contact.email, orderCount: 0 };
+        contactMap.set(o.contactId, entry);
+      }
+      entry.orderCount++;
+    }
+    return Array.from(contactMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [orders]);
+
+  const siteCards = useMemo(() => {
+    const siteMap = new Map<string, { siteId: string; name: string; address: string; statuses: Record<string, number> }>();
+    for (const o of orders) {
+      if (!o.siteId) continue;
+      let entry = siteMap.get(o.siteId);
+      if (!entry) {
+        entry = { siteId: o.siteId, name: o.site.siteName, address: o.site.siteAddress, statuses: {} };
+        siteMap.set(o.siteId, entry);
+      }
+      entry.statuses[o.status] = (entry.statuses[o.status] || 0) + 1;
+    }
+    return Array.from(siteMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [orders]);
+
   const filteredOrders = useMemo(() => {
     let result = orders;
+    if (selectedContactId) result = result.filter((o) => o.contactId === selectedContactId || !o.contactId);
+    if (selectedSiteId) result = result.filter((o) => o.siteId === selectedSiteId || !o.siteId);
     if (filter !== "all") result = result.filter((o) => o.status === filter);
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -72,7 +107,7 @@ export default function OrdersPage() {
       );
     }
     return result;
-  }, [orders, filter, search]);
+  }, [orders, filter, search, selectedSiteId, selectedContactId]);
 
   if (loading) {
     return (
@@ -118,6 +153,139 @@ export default function OrdersPage() {
         </Link>
       </div>
 
+      {/* Contact pills */}
+      {contactCards.length > 0 && (
+        <div className="mb-5">
+          <div className="flex items-center gap-3 mb-3">
+            <h2 className="text-sm font-semibold text-persimmon-navy">Ordered By</h2>
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {contactCards.map((contact) => {
+              const isSelected = selectedContactId === contact.contactId;
+              const initials = contact.name
+                .split(" ")
+                .map((w) => w[0])
+                .join("")
+                .toUpperCase()
+                .slice(0, 2);
+              // Deterministic soft colour from name
+              const hue = Array.from(contact.name).reduce((h, c) => h + c.charCodeAt(0), 0) % 360;
+              return (
+                <button
+                  key={contact.contactId}
+                  onClick={() => setSelectedContactId(isSelected ? null : contact.contactId)}
+                  className={`flex items-center gap-2.5 pl-1.5 pr-4 py-1.5 rounded-full border-2 transition-all whitespace-nowrap shrink-0 ${
+                    isSelected
+                      ? "border-persimmon-green bg-white shadow-sm"
+                      : "border-gray-100 bg-white hover:border-gray-200"
+                  }`}
+                >
+                  <span
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
+                    style={{ backgroundColor: `hsl(${hue}, 45%, 55%)` }}
+                  >
+                    {initials}
+                  </span>
+                  <span className="text-sm font-medium text-persimmon-navy">{contact.name}</span>
+                  <span className="text-[11px] text-gray-400">{contact.orderCount}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Site bento cards */}
+      {siteCards.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-3">
+            <h2 className="text-sm font-semibold text-persimmon-navy">Your Sites</h2>
+            <span className="bg-persimmon-navy text-white px-2.5 py-0.5 rounded-full text-[11px] font-medium">
+              {siteCards.length} {siteCards.length === 1 ? "site" : "sites"}
+            </span>
+          </div>
+          <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+            {siteCards.map((site) => {
+              const isSelected = selectedSiteId === site.siteId;
+              return (
+                <button
+                  key={site.siteId}
+                  onClick={() => setSelectedSiteId(isSelected ? null : site.siteId)}
+                  className={`text-left p-4 rounded-xl border-2 transition-all ${
+                    isSelected
+                      ? "border-persimmon-green bg-white shadow-sm"
+                      : "border-gray-100 bg-white hover:border-gray-200"
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-1">
+                    <p className="font-semibold text-persimmon-navy text-sm">{site.name}</p>
+                    {isSelected && (
+                      <span className="w-5 h-5 bg-persimmon-green rounded-full flex items-center justify-center shrink-0">
+                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-400 mb-2 line-clamp-1">{site.address}</p>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {Object.entries(site.statuses).map(([status, count]) => {
+                      const cfg = statusConfig[status];
+                      if (!cfg) return null;
+                      return (
+                        <span key={status} className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${cfg.color}`}>
+                          {count} {cfg.label}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Active filter indicators */}
+      {(selectedContactId || selectedSiteId) && (
+        <div className="flex items-center gap-3 mb-4 flex-wrap">
+          {selectedContactId && (
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm text-persimmon-navy font-medium">
+                By: {contactCards.find((c) => c.contactId === selectedContactId)?.name}
+              </span>
+              <button
+                onClick={() => setSelectedContactId(null)}
+                className="text-xs text-gray-400 border border-gray-200 rounded-lg px-2 py-0.5 hover:bg-gray-50 transition"
+              >
+                &times;
+              </button>
+            </div>
+          )}
+          {selectedSiteId && (
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm text-persimmon-navy font-medium">
+                Site: {siteCards.find((s) => s.siteId === selectedSiteId)?.name}
+              </span>
+              <button
+                onClick={() => setSelectedSiteId(null)}
+                className="text-xs text-gray-400 border border-gray-200 rounded-lg px-2 py-0.5 hover:bg-gray-50 transition"
+              >
+                &times;
+              </button>
+            </div>
+          )}
+          {selectedContactId && selectedSiteId && (
+            <button
+              onClick={() => { setSelectedContactId(null); setSelectedSiteId(null); }}
+              className="text-xs text-persimmon-green font-medium hover:underline transition"
+            >
+              Clear all
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Search */}
       <div className="relative mb-4">
         <svg
@@ -144,7 +312,7 @@ export default function OrdersPage() {
 
       {/* Status filters */}
       <div className="flex gap-2 mb-6 overflow-x-auto">
-        {["all", "new", "in-progress", "completed"].map((f) => (
+        {["all", "new", "awaiting_po", "in-progress", "completed"].map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
@@ -256,6 +424,7 @@ export default function OrdersPage() {
                     {/* Status banner */}
                     <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl mb-5 ${
                       order.status === "completed" ? "bg-emerald-50" :
+                      order.status === "awaiting_po" ? "bg-yellow-50" :
                       order.status === "in-progress" ? "bg-amber-50" :
                       order.status === "cancelled" ? "bg-gray-50" : "bg-blue-50"
                     }`}>
@@ -267,6 +436,10 @@ export default function OrdersPage() {
                         <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
+                      ) : order.status === "awaiting_po" ? (
+                        <svg className="w-4 h-4 text-yellow-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                       ) : (
                         <svg className="w-4 h-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
@@ -274,6 +447,7 @@ export default function OrdersPage() {
                       )}
                       <p className={`text-sm ${
                         order.status === "completed" ? "text-emerald-700" :
+                        order.status === "awaiting_po" ? "text-yellow-700" :
                         order.status === "in-progress" ? "text-amber-700" :
                         order.status === "cancelled" ? "text-gray-500" : "text-blue-700"
                       }`}>
