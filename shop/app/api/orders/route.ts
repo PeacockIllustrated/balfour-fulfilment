@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { buildNestPOEmailHtml, generateRaisePoToken } from "@/lib/email";
-import { generateDeliveryNotePdf } from "@/lib/delivery-note";
+import { buildNestPOEmailHtml, buildPurchaserPOEmailHtml, generateRaisePoToken } from "@/lib/email";
 import { isShopAuthed, isAdminAuthed } from "@/lib/auth";
 
 function generateOrderNumber(): string {
@@ -20,7 +19,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { contactName, email, phone, siteName, siteAddress, poNumber, notes, items, contactId, siteId } = body;
+    const { contactName, email, phone, siteName, siteAddress, poNumber, notes, items, contactId, siteId, purchaserName, purchaserEmail, purchaserId } = body;
 
     // Validation
     if (!contactName || !email || !phone || !siteName || !siteAddress || !items?.length) {
@@ -103,6 +102,9 @@ export async function POST(req: NextRequest) {
         notes: notes ? String(notes) : null,
         contact_id: contactId || null,
         site_id: siteId || null,
+        purchaser_name: purchaserName ? String(purchaserName) : null,
+        purchaser_email: purchaserEmail ? String(purchaserEmail) : null,
+        purchaser_id: purchaserId || null,
         subtotal,
         vat,
         total,
@@ -146,23 +148,25 @@ export async function POST(req: NextRequest) {
       total,
     };
 
-    // Generate delivery note PDF
     const siteUrl = process.env.SITE_URL || "http://localhost:3000";
     const makeWebhookUrl = process.env.MAKE_WEBHOOK_URL;
-
-    let deliveryNotePdf: string | null = null;
-    try {
-      deliveryNotePdf = await generateDeliveryNotePdf(emailData);
-      console.log(`Delivery note PDF generated for ${orderNumber} — ${Math.round(deliveryNotePdf.length * 0.75 / 1024)}KB`);
-    } catch (e) {
-      console.error("Delivery note PDF generation failed:", e);
-    }
 
     // Fire Make webhook
     if (makeWebhookUrl) {
       const token = generateRaisePoToken(orderNumber);
       const raisePoUrl = `${siteUrl}/api/orders/${orderNumber}/raise-po?t=${token}`;
       const { subject, html } = buildNestPOEmailHtml(emailData, siteUrl, raisePoUrl);
+
+      // Build purchaser email payload if purchaser exists
+      let purchaserEmailSubject: string | null = null;
+      let purchaserEmailHtml: string | null = null;
+      if (purchaserEmail) {
+        const poUploadUrl = `${siteUrl}/po-upload/${orderNumber}?t=${token}`;
+        const pEmail = buildPurchaserPOEmailHtml({ ...emailData, purchaserName: purchaserName ? String(purchaserName) : null, purchaserEmail: String(purchaserEmail) }, poUploadUrl);
+        purchaserEmailSubject = pEmail.subject;
+        purchaserEmailHtml = pEmail.html;
+      }
+
       await fetch(makeWebhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -180,12 +184,15 @@ export async function POST(req: NextRequest) {
           siteAddress: String(siteAddress),
           poNumber: poNumber ? String(poNumber) : null,
           notes: notes ? String(notes) : null,
+          purchaserName: purchaserName ? String(purchaserName) : null,
+          purchaserEmail: purchaserEmail ? String(purchaserEmail) : null,
+          purchaserEmailSubject,
+          purchaserEmailHtml,
           subtotal,
           vat,
           total,
           itemCount: validatedItems.length,
           hasCustomItems: validatedItems.some((i: { custom_data: unknown }) => !!i.custom_data),
-          deliveryNotePdf,
         }),
       })
         .then((r) => console.log(`Make webhook fired for ${orderNumber} — ${r.status}`))
@@ -231,9 +238,13 @@ export async function GET() {
       status: o.status,
       contactId: o.contact_id || null,
       siteId: o.site_id || null,
+      purchaserId: o.purchaser_id || null,
       contact: { contactName: o.contact_name, email: o.email, phone: o.phone },
       site: { siteName: o.site_name, siteAddress: o.site_address },
+      purchaserName: o.purchaser_name || null,
+      purchaserEmail: o.purchaser_email || null,
       poNumber: o.po_number,
+      poDocumentName: o.po_document_name || null,
       notes: o.notes,
       items: (allItems || [])
         .filter((item) => item.order_id === o.id)

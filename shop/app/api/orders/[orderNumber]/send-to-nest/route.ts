@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { isAdminAuthed } from "@/lib/auth";
-import { buildNestPOEmailHtml } from "@/lib/email";
-import { generateDeliveryNotePdf } from "@/lib/delivery-note";
+import { buildNestPOEmailHtml, buildPurchaserPOEmailHtml, generateRaisePoToken } from "@/lib/email";
 
 export async function POST(
   _req: NextRequest,
@@ -74,11 +73,15 @@ export async function POST(
     const siteUrl = process.env.SITE_URL || "http://localhost:3000";
     const { subject, html } = buildNestPOEmailHtml(orderData, siteUrl);
 
-    let deliveryNotePdf: string | null = null;
-    try {
-      deliveryNotePdf = await generateDeliveryNotePdf(orderData);
-    } catch (e) {
-      console.error("Delivery note PDF generation failed:", e);
+    // Build purchaser email payload if purchaser exists
+    let purchaserEmailSubject: string | null = null;
+    let purchaserEmailHtml: string | null = null;
+    if (order.purchaser_email) {
+      const token = generateRaisePoToken(orderNumber);
+      const poUploadUrl = `${siteUrl}/po-upload/${orderNumber}?t=${token}`;
+      const purchaserEmail = buildPurchaserPOEmailHtml({ ...orderData, purchaserName: order.purchaser_name, purchaserEmail: order.purchaser_email }, poUploadUrl);
+      purchaserEmailSubject = purchaserEmail.subject;
+      purchaserEmailHtml = purchaserEmail.html;
     }
 
     // Fire Make webhook with isPO: true
@@ -98,12 +101,15 @@ export async function POST(
         siteAddress: order.site_address,
         poNumber: order.po_number,
         notes: order.notes,
+        purchaserName: order.purchaser_name || null,
+        purchaserEmail: order.purchaser_email || null,
+        purchaserEmailSubject,
+        purchaserEmailHtml,
         subtotal: Number(order.subtotal),
         vat: Number(order.vat),
         total: Number(order.total),
         itemCount: (items || []).length,
         hasCustomItems: (items || []).some((i: Record<string, unknown>) => !!i.custom_data),
-        deliveryNotePdf,
       }),
     });
 

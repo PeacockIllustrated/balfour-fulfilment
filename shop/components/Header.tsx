@@ -3,17 +3,24 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useBasket } from "./BasketContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SearchBar from "./SearchBar";
 import BasketDrawer from "./BasketDrawer";
 
 export default function Header() {
   const { totalItems, totalPrice, setDrawerOpen } = useBasket();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <>
-      <header className="bg-white border-b border-gray-200/80 sticky top-0 z-50">
+      <header className={`bg-white border-b border-gray-200/80 sticky top-0 z-50 transition-shadow ${scrolled ? "shadow-md" : ""}`}>
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
             <Image

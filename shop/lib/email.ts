@@ -36,6 +36,8 @@ export interface OrderData {
   siteAddress: string;
   poNumber: string | null;
   notes: string | null;
+  purchaserName?: string | null;
+  purchaserEmail?: string | null;
   items: OrderItem[];
   subtotal: number;
   vat: number;
@@ -123,8 +125,8 @@ export function buildNestPOEmailHtml(order: OrderData, siteUrl: string, raisePoU
   const wb = "word-break:break-word;overflow-wrap:break-word";
   const buttonHtml = raisePoUrl
     ? `<div style="text-align:center;margin:28px 0 8px">
-        <a href="${raisePoUrl}" style="background:#005d99;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;display:inline-block;font-size:16px;font-weight:bold;letter-spacing:0.5px">Raise PO</a>
-        <p style="margin:8px 0 0;font-size:12px;color:#999">Click to send this order to Nest for purchase order processing</p>
+        <a href="${raisePoUrl}" style="background:#005d99;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;display:inline-block;font-size:16px;font-weight:bold;letter-spacing:0.5px">Send to Purchaser</a>
+        <p style="margin:8px 0 0;font-size:12px;color:#999">Click to forward this order to the purchaser for PO attachment</p>
       </div>`
     : "";
   return {
@@ -154,6 +156,8 @@ export function buildNestPOEmailHtml(order: OrderData, siteUrl: string, raisePoU
             </td>
           </tr></table>
 
+          ${order.purchaserName ? `<p style="font-size:14px;color:#666;margin-bottom:16px;${wb}"><strong>Purchaser:</strong> ${esc(order.purchaserName)}${order.purchaserEmail ? ` (${esc(order.purchaserEmail)})` : ""}</p>` : ""}
+
           ${order.poNumber ? `<p style="font-size:14px;color:#666;margin-bottom:16px;${wb}"><strong>Customer PO:</strong> ${esc(order.poNumber)}</p>` : ""}
 
           ${order.notes ? `<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:12px 16px;margin-bottom:24px"><p style="margin:0;font-size:13px;color:#c2410c;${wb}"><strong>Notes:</strong> ${esc(order.notes)}</p></div>` : ""}
@@ -176,6 +180,82 @@ export function buildNestPOEmailHtml(order: OrderData, siteUrl: string, raisePoU
           </table>
 
           ${buttonHtml}
+        </div>
+      </div>`,
+  };
+}
+
+/** Build the purchaser-facing PO email HTML with "Attach PO" button */
+export function buildPurchaserPOEmailHtml(order: OrderData, poUploadUrl: string): { subject: string; html: string } {
+  const wb = "word-break:break-word;overflow-wrap:break-word";
+  return {
+    subject: `Purchase Order Required — ${order.orderNumber} — ${esc(order.siteName)}`,
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;${wb}">
+        <div style="background:#002b49;padding:24px 32px;border-radius:12px 12px 0 0">
+          <h1 style="color:white;margin:0;font-size:20px">Purchase Order Required</h1>
+        </div>
+        <div style="padding:32px;border:1px solid #eee;border-top:none;border-radius:0 0 12px 12px">
+          <p style="font-size:15px;color:#333;margin:0 0 20px">
+            Hi${order.purchaserName ? ` ${esc(order.purchaserName)}` : ""},
+          </p>
+          <p style="font-size:14px;color:#666;margin:0 0 24px;line-height:1.6">
+            A signage order has been placed for <strong>${esc(order.siteName)}</strong> and requires a purchase order.
+            Please review the details below and attach your PO document using the button at the bottom of this email.
+          </p>
+
+          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px 20px;margin-bottom:24px">
+            <p style="margin:0;font-size:18px;font-weight:bold;color:#002b49">${order.orderNumber}</p>
+            <p style="margin:4px 0 0;font-size:14px;color:#666">&pound;${order.total.toFixed(2)} inc. VAT &middot; ${order.items.length} items</p>
+          </div>
+
+          <table style="width:100%;margin-bottom:24px" cellpadding="0" cellspacing="0"><tr>
+            <td style="vertical-align:top;width:50%;padding-right:12px">
+              <p style="font-size:12px;color:#999;text-transform:uppercase;margin:0 0 4px">Ordered by</p>
+              <p style="margin:0;font-size:14px;${wb}"><strong>${esc(order.contactName)}</strong></p>
+              <p style="margin:2px 0;font-size:14px;color:#666;${wb}">${esc(order.email)}</p>
+            </td>
+            <td style="vertical-align:top;width:50%;padding-left:12px">
+              <p style="font-size:12px;color:#999;text-transform:uppercase;margin:0 0 4px">Site</p>
+              <p style="margin:0;font-size:14px;${wb}"><strong>${esc(order.siteName)}</strong></p>
+              <p style="margin:2px 0;font-size:14px;color:#666;${wb}">${esc(order.siteAddress)}</p>
+            </td>
+          </tr></table>
+
+          <table style="width:100%;border-collapse:collapse;margin:20px 0;table-layout:fixed">
+            <thead>
+              <tr style="background:#f5f5f5">
+                <th style="padding:8px 12px;text-align:left;font-size:12px;color:#666;text-transform:uppercase">Product</th>
+                <th style="padding:8px 8px;text-align:center;font-size:12px;color:#666;text-transform:uppercase;width:50px">Qty</th>
+                <th style="padding:8px 12px 8px 8px;text-align:right;font-size:12px;color:#666;text-transform:uppercase;width:80px">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.items.map((item) => {
+                if (item.custom_data && item.custom_data.signType) {
+                  const typeLabel = item.custom_data.signType.charAt(0).toUpperCase() + item.custom_data.signType.slice(1).replace("-", " ");
+                  return `<tr>
+                    <td style="padding:8px 12px;border-bottom:1px solid #eee;font-size:14px">CUSTOM SIGN — ${esc(typeLabel)}</td>
+                    <td style="padding:8px 8px;border-bottom:1px solid #eee;font-size:14px;text-align:center">${item.quantity}</td>
+                    <td style="padding:8px 12px;border-bottom:1px solid #eee;font-size:12px;text-align:right;color:#d97706;font-weight:bold">Quote</td>
+                  </tr>`;
+                }
+                return `<tr>
+                  <td style="padding:8px 12px;border-bottom:1px solid #eee;font-size:14px">${esc(item.code)} — ${esc(item.name)}${item.size ? ` (${esc(item.size)})` : ""}</td>
+                  <td style="padding:8px 8px;border-bottom:1px solid #eee;font-size:14px;text-align:center">${item.quantity}</td>
+                  <td style="padding:8px 12px;border-bottom:1px solid #eee;font-size:14px;text-align:right">&pound;${item.line_total.toFixed(2)}</td>
+                </tr>`;
+              }).join("")}
+            </tbody>
+            <tfoot>
+              ${totalsHtml(order.subtotal, order.vat, order.total, order.items.some(i => !!i.custom_data))}
+            </tfoot>
+          </table>
+
+          <div style="text-align:center;margin:28px 0 8px">
+            <a href="${poUploadUrl}" style="background:#005d99;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;display:inline-block;font-size:16px;font-weight:bold;letter-spacing:0.5px">Attach PO</a>
+            <p style="margin:8px 0 0;font-size:12px;color:#999">Click to upload your purchase order document for this order</p>
+          </div>
         </div>
       </div>`,
   };

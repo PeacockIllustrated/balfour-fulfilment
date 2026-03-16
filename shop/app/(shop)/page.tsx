@@ -80,6 +80,12 @@ export default async function Home({
           </Link>
         ))}
       </div>
+
+      <div className="mt-16 pb-8 text-center md:hidden">
+        <Link href="/admin" className="text-sm text-gray-400 hover:text-persimmon-navy transition">
+          Admin
+        </Link>
+      </div>
     </div>
   );
 }
