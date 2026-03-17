@@ -39,7 +39,7 @@ EXCLUDED_CODES = {
     # PCFCCS motivational/campaign posters & non-sign products
     'PCFCCS01', 'PCFCCS02', 'PCFCCS03', 'PCFCCS04', 'PCFCCS06',
     'PCFCCS08', 'PCFCCS09', 'PCFCCS10', 'PCFCCS11', 'PCFCCS12',
-    'PCFCCS13', 'PCFCCS14', 'PCFCCS17', 'PCFCCS18', 'PCFCCS21',
+    'PCFCCS13', 'PCFCCS14', 'PCFCCS17', 'PCFCCS21',
     'PCFCCS22', 'PCFCCS23', 'PCFCCS24', 'PCFCCS40', 'PCFCCS41',
     'PCFCCS42', 'PCFCCS43', 'PCFCCS44', 'PCFCCS45', 'PCFCCS46',
     'PCFCCS47', 'PCFCCS48', 'PCFCCS49', 'PCFCCS50',
@@ -73,7 +73,6 @@ EXCLUDED_CODES = {
 
     # Poster-style signs found in standard categories
     'PCF106',   # Injury statistics poster (PPE category)
-    'PCF151',   # Motivational "Site Organisation / We Care" poster
 }
 
 # Prefix-based exclusions for finished-home products with complex slash codes

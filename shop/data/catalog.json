@@ -628,6 +628,31 @@
       "description": "Ensure site entrances are clearly marked for workers and visitors to your construction site.",
       "products": [
         {
+          "baseCode": "PCF151",
+          "variants": [
+            {
+              "code": "PCF151/W",
+              "size": "1220x800mm",
+              "material": "4mm Correx",
+              "description": "1220x800mm Site organisation (4mm Correx)",
+              "price": 19.22,
+              "persimmonPrice": 15.18,
+              "sizeSuffix": "W"
+            },
+            {
+              "code": "PCF151/Y",
+              "size": "1800x1220mm",
+              "material": "10mm Correx",
+              "description": "1800x1220mm Site organisation (10mm Correx)",
+              "price": 61.68,
+              "persimmonPrice": 48.73,
+              "sizeSuffix": "Y"
+            }
+          ],
+          "name": "Site organisation",
+          "image": "/images/products/PCF151.png"
+        },
+        {
           "baseCode": "PCF167",
           "variants": [
             {
@@ -1034,9 +1059,25 @@
             }
           ],
           "image": "/images/products/PCFA107.png"
+        },
+        {
+          "baseCode": "PCFCCS18",
+          "variants": [
+            {
+              "code": "PCFCCS18",
+              "size": "1220x610mm",
+              "material": "5mm Foamex",
+              "description": "1220x610mm Meet the person who is… (5mm Foamex + Mirror Panel)",
+              "price": 32.0,
+              "persimmonPrice": 25.28,
+              "sizeSuffix": null
+            }
+          ],
+          "name": "Meet the person who is…",
+          "image": "/images/products/PCFCCS18.png"
         }
       ],
-      "productCount": 12
+      "productCount": 14
     },
     {
       "name": "Information Signs",
@@ -21881,6 +21922,6 @@
       "productCount": 54
     }
   ],
-  "totalProducts": 709,
+  "totalProducts": 711,
   "totalVariants": 1969
 }
