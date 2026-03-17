@@ -33,7 +33,54 @@ SIZE_NAMES = {
 # Products to exclude from the catalog entirely
 EXCLUDED_CODES = {
     'PCF984', 'PCF985', 'PCF986', 'PCF987', 'PCFCOV-19-ENT',  # Covid-19 signs — discontinued
+
+    # --- Non-classic signage removed for Balfour Beatty rebrand ---
+
+    # PCFCCS motivational/campaign posters & non-sign products
+    'PCFCCS01', 'PCFCCS02', 'PCFCCS03', 'PCFCCS04', 'PCFCCS06',
+    'PCFCCS08', 'PCFCCS09', 'PCFCCS10', 'PCFCCS11', 'PCFCCS12',
+    'PCFCCS13', 'PCFCCS14', 'PCFCCS17', 'PCFCCS18', 'PCFCCS21',
+    'PCFCCS22', 'PCFCCS23', 'PCFCCS24', 'PCFCCS40', 'PCFCCS41',
+    'PCFCCS42', 'PCFCCS43', 'PCFCCS44', 'PCFCCS45', 'PCFCCS46',
+    'PCFCCS47', 'PCFCCS48', 'PCFCCS49', 'PCFCCS50',
+
+    # "Bob Safe / Barney Sorry" cartoon signs
+    'PCFB01', 'PCFB02', 'PCFB03', 'PCFB04', 'PCFB05', 'PCFB06',
+    'PCFB07', 'PCFB08', 'PCFB09', 'PCFB10', 'PCFB11', 'PCFB12',
+
+    # "Larry" cartoon safety signs
+    'PCFS01', 'PCFS02', 'PCFS03', 'PCFS04', 'PCFS05', 'PCFS06',
+    'PCFS07', 'PCFS08', 'PCFS09', 'PCFS10', 'PCFS11', 'PCFS12',
+    'PCFS13', 'PCFS14', 'PCFS15', 'PCFS16',
+
+    # Health & safety poster series (A2/A3 poster format, not standard signs)
+    'PCFS38M', 'PCFS83M', 'PCFS84M', 'PCFS85M', 'PCFS86M', 'PCFS87M',
+    'PCFS88M', 'PCFS89M', 'PCFS90M', 'PCFS91M', 'PCFS92M', 'PCFS93M',
+    'PCFS94M', 'PCFS95M', 'PCFS96M', 'PCFS97M', 'PCFS98M', 'PCFS99M',
+    'PCFS100M', 'PCFS101M', 'PCFS102M', 'PCFS103M', 'PCFS104M',
+    'PCFS105M', 'PCFS106M',
+
+    # Persimmon-branded health information posters
+    'PCFS112', 'PCFS113', 'PCFS114', 'PCFS115', 'PCFS116',
+    'PCFS117', 'PCFS118',
+
+    # Photo-based campaign posters
+    'PCFSN01', 'PCFSN02', 'PCFSN03', 'PCFSN04', 'PCFSN05',
+    'PCFSN06', 'PCFSN07',
+
+    # Sun safety campaign posters
+    'PCFSUN01', 'PCFSUN02', 'PCFSUN03',
+
+    # Poster-style signs found in standard categories
+    'PCF106',   # Injury statistics poster (PPE category)
+    'PCF151',   # Motivational "Site Organisation / We Care" poster
 }
+
+# Prefix-based exclusions for finished-home products with complex slash codes
+EXCLUDED_PREFIXES = (
+    'PCFFH02', 'PCFFH21', 'PCFFH22', 'PCFFH23', 'PCFFH24',
+    'PCFFH26', 'PCFFH31', 'PCFFH32', 'PCFFH34', 'PCFFH41',
+)
 
 # Category definitions: maps PDF page ranges to categories
 # Built from PDF content analysis
@@ -395,6 +442,8 @@ def build_catalog():
         base_code, size_suffix = get_base_code(product['code'])
 
         if base_code in EXCLUDED_CODES:
+            continue
+        if any(product['code'].startswith(p) for p in EXCLUDED_PREFIXES):
             continue
 
         if base_code not in product_groups:
