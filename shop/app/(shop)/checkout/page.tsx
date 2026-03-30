@@ -18,6 +18,12 @@ interface Site {
   address: string;
 }
 
+interface Purchaser {
+  id: string;
+  name: string;
+  email: string;
+}
+
 export default function CheckoutPage() {
   const { items, totalPrice, clearBasket } = useBasket();
   const router = useRouter();
@@ -26,24 +32,32 @@ export default function CheckoutPage() {
   // Saved records
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [sites, setSites] = useState<Site[]>([]);
+  const [purchasers, setPurchasers] = useState<Purchaser[]>([]);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [selectedSite, setSelectedSite] = useState<Site | null>(null);
+  const [selectedPurchaser, setSelectedPurchaser] = useState<Purchaser | null>(null);
 
   // "Add new" form state
   const [showNewContact, setShowNewContact] = useState(false);
   const [showNewSite, setShowNewSite] = useState(false);
+  const [showNewPurchaser, setShowNewPurchaser] = useState(false);
   const [newContact, setNewContact] = useState({ name: "", email: "", phone: "" });
   const [newSite, setNewSite] = useState({ name: "", address: "" });
+  const [newPurchaser, setNewPurchaser] = useState({ name: "", email: "" });
   const [savingContact, setSavingContact] = useState(false);
   const [savingSite, setSavingSite] = useState(false);
+  const [savingPurchaser, setSavingPurchaser] = useState(false);
 
   // Manage modals
   const [manageContacts, setManageContacts] = useState(false);
   const [manageSites, setManageSites] = useState(false);
+  const [managePurchasers, setManagePurchasers] = useState(false);
   const [editingContact, setEditingContact] = useState<string | null>(null);
   const [editingSite, setEditingSite] = useState<string | null>(null);
+  const [editingPurchaser, setEditingPurchaser] = useState<string | null>(null);
   const [editContactForm, setEditContactForm] = useState({ name: "", email: "", phone: "" });
   const [editSiteForm, setEditSiteForm] = useState({ name: "", address: "" });
+  const [editPurchaserForm, setEditPurchaserForm] = useState({ name: "", email: "" });
   const [savingEdit, setSavingEdit] = useState(false);
 
   // Free-text fields
@@ -54,6 +68,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     fetch("/api/contacts").then((r) => r.json()).then((d) => setContacts(d.contacts || [])).catch(() => {});
     fetch("/api/sites").then((r) => r.json()).then((d) => setSites(d.sites || [])).catch(() => {});
+    fetch("/api/purchasers").then((r) => r.json()).then((d) => setPurchasers(d.purchasers || [])).catch(() => {});
   }, []);
 
   if (items.length === 0) {
@@ -68,7 +83,7 @@ export default function CheckoutPage() {
     );
   }
 
-  const canSubmit = selectedContact && selectedSite && !submitting;
+  const canSubmit = selectedContact && selectedSite && selectedPurchaser && !submitting;
 
   const handleContactSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
@@ -209,6 +224,94 @@ export default function CheckoutPage() {
     setSavingContact(false);
   };
 
+  const handlePurchaserSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    if (val === "__new__") {
+      setSelectedPurchaser(null);
+      setShowNewPurchaser(true);
+      return;
+    }
+    if (val === "__manage__") {
+      setManagePurchasers(true);
+      return;
+    }
+    if (val === "__none__") {
+      setSelectedPurchaser(null);
+      setShowNewPurchaser(false);
+      return;
+    }
+    setShowNewPurchaser(false);
+    const purchaser = purchasers.find((p) => p.id === val) || null;
+    setSelectedPurchaser(purchaser);
+  };
+
+  const startEditPurchaser = (p: Purchaser) => {
+    setEditingPurchaser(p.id);
+    setEditPurchaserForm({ name: p.name, email: p.email });
+  };
+
+  const saveEditPurchaser = async (id: string) => {
+    if (!editPurchaserForm.name.trim() || !editPurchaserForm.email.trim()) return;
+    setSavingEdit(true);
+    try {
+      const res = await fetch("/api/purchasers", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, ...editPurchaserForm }),
+      });
+      if (res.ok) {
+        const updated: Purchaser = await res.json();
+        setPurchasers((prev) => prev.map((p) => (p.id === id ? updated : p)));
+        if (selectedPurchaser?.id === id) setSelectedPurchaser(updated);
+        setEditingPurchaser(null);
+      }
+    } catch { /* ignore */ }
+    setSavingEdit(false);
+  };
+
+  const deletePurchaser = async (id: string) => {
+    if (!confirm("Remove this purchaser? Orders already placed will keep their details.")) return;
+    try {
+      const res = await fetch("/api/purchasers", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (res.ok) {
+        setPurchasers((prev) => prev.filter((p) => p.id !== id));
+        if (selectedPurchaser?.id === id) setSelectedPurchaser(null);
+        if (editingPurchaser === id) setEditingPurchaser(null);
+      }
+    } catch { /* ignore */ }
+  };
+
+  const saveNewPurchaser = async () => {
+    if (!newPurchaser.name.trim() || !newPurchaser.email.trim()) {
+      alert("Please fill in all purchaser fields.");
+      return;
+    }
+    setSavingPurchaser(true);
+    try {
+      const res = await fetch("/api/purchasers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newPurchaser),
+      });
+      if (res.ok) {
+        const saved: Purchaser = await res.json();
+        setPurchasers((prev) => {
+          const exists = prev.some((p) => p.id === saved.id);
+          const updated = exists ? prev : [...prev, saved].sort((a, b) => a.name.localeCompare(b.name));
+          return updated;
+        });
+        setSelectedPurchaser(saved);
+        setShowNewPurchaser(false);
+        setNewPurchaser({ name: "", email: "" });
+      }
+    } catch { /* ignore */ }
+    setSavingPurchaser(false);
+  };
+
   const saveNewSite = async () => {
     if (!newSite.name.trim() || !newSite.address.trim()) {
       alert("Please fill in all site fields.");
@@ -253,6 +356,9 @@ export default function CheckoutPage() {
           siteAddress: selectedSite.address,
           contactId: selectedContact.id,
           siteId: selectedSite.id,
+          purchaserName: selectedPurchaser?.name || null,
+          purchaserEmail: selectedPurchaser?.email || null,
+          purchaserId: selectedPurchaser?.id || null,
           poNumber,
           notes,
           items: items.map((item) => ({
@@ -266,6 +372,7 @@ export default function CheckoutPage() {
             quantity: item.quantity,
             ...(item.customSign ? { customSign: item.customSign } : {}),
             ...(item.customFieldValues ? { customFieldValues: item.customFieldValues } : {}),
+            ...(item.customSizeData ? { customSizeData: item.customSizeData } : {}),
           })),
           subtotal: totalPrice,
           vat: totalPrice * 0.2,
@@ -373,6 +480,40 @@ export default function CheckoutPage() {
             )}
           </div>
 
+          {/* Purchaser section */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-6">
+            <h2 className="text-base font-semibold text-persimmon-navy mb-5">Purchaser <span className="text-red-500">*</span></h2>
+            <select value={selectedPurchaser?.id || (showNewPurchaser ? "__new__" : "")} onChange={handlePurchaserSelect} className={selectClass}>
+              <option value="" disabled>Select a purchaser...</option>
+              {purchasers.map((p) => (
+                <option key={p.id} value={p.id}>{p.name} ({p.email})</option>
+              ))}
+              <option value="__new__">+ Add new purchaser</option>
+              {purchasers.length > 0 && <option value="__manage__">Manage purchasers...</option>}
+            </select>
+
+            {selectedPurchaser && !showNewPurchaser && (
+              <div className="mt-3 px-1 text-sm text-gray-500 space-y-0.5">
+                <p className="font-medium text-gray-700">{selectedPurchaser.name}</p>
+                <p>{selectedPurchaser.email}</p>
+              </div>
+            )}
+
+            {showNewPurchaser && (
+              <div className="mt-4 border-2 border-dashed border-persimmon-green rounded-xl p-4 bg-emerald-50/30">
+                <p className="text-sm font-semibold text-persimmon-navy mb-3">New Purchaser</p>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <input type="text" placeholder="Name *" value={newPurchaser.name} onChange={(e) => setNewPurchaser((p) => ({ ...p, name: e.target.value }))} className={inputClass} />
+                  <input type="email" placeholder="Email *" value={newPurchaser.email} onChange={(e) => setNewPurchaser((p) => ({ ...p, email: e.target.value }))} className={inputClass} />
+                </div>
+                <div className="flex justify-end gap-2 mt-3">
+                  <button type="button" onClick={() => { setShowNewPurchaser(false); setNewPurchaser({ name: "", email: "" }); }} className="px-4 py-2 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition">Cancel</button>
+                  <button type="button" onClick={saveNewPurchaser} disabled={savingPurchaser} className="px-4 py-2 text-sm text-white bg-persimmon-green rounded-lg font-medium hover:bg-persimmon-green-dark transition disabled:opacity-50">{savingPurchaser ? "Saving..." : "Save Purchaser"}</button>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* PO Number & Notes */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
             <h2 className="text-base font-semibold text-persimmon-navy mb-5">Order Details</h2>
@@ -401,7 +542,7 @@ export default function CheckoutPage() {
                     <span className="text-gray-500 truncate mr-2">
                       {item.customSign ? "Custom Sign" : item.code} x{item.quantity}
                     </span>
-                    {item.customSign ? (
+                    {item.customSign || item.customSizeData?.requiresQuote ? (
                       <span className="font-medium text-amber-600 shrink-0 text-xs">Quote</span>
                     ) : (
                       <span className="font-medium text-gray-700 shrink-0">
@@ -451,13 +592,16 @@ export default function CheckoutPage() {
             {!selectedSite && !showNewSite && selectedContact && (
               <p className="text-[11px] text-amber-600 mt-3 text-center">Please select or add a site to continue.</p>
             )}
+            {selectedContact && selectedSite && !selectedPurchaser && !showNewPurchaser && (
+              <p className="text-[11px] text-amber-600 mt-3 text-center">Please select or add a purchaser to continue.</p>
+            )}
 
             <p className="text-[11px] text-gray-400 mt-3 text-center leading-relaxed">
               All prices exclude VAT. You will receive a confirmation email.
             </p>
-            {items.some((i) => i.customSign) && (
+            {items.some((i) => i.customSign || i.customSizeData?.requiresQuote) && (
               <p className="text-[11px] text-amber-600 mt-2 text-center leading-relaxed">
-                Custom sign items will be quoted separately after review.
+                Items marked &ldquo;Quote&rdquo; will be priced after review.
               </p>
             )}
           </div>
@@ -543,6 +687,51 @@ export default function CheckoutPage() {
                       <div className="flex items-center gap-2 shrink-0 ml-3">
                         <button type="button" onClick={() => startEditSite(s)} className="px-3 py-1.5 text-xs text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition">Edit</button>
                         <button type="button" onClick={() => deleteSite(s.id)} className="px-3 py-1.5 text-xs text-red-500 border border-red-200 rounded-lg hover:bg-red-50 transition">Remove</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Manage Purchasers Modal */}
+      {managePurchasers && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => { setManagePurchasers(false); setEditingPurchaser(null); }}>
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b border-gray-100">
+              <h2 className="text-base font-semibold text-persimmon-navy">Manage Purchasers</h2>
+              <button onClick={() => { setManagePurchasers(false); setEditingPurchaser(null); }} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition text-gray-500">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 p-5 space-y-3">
+              {purchasers.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-8">No purchasers yet.</p>
+              ) : purchasers.map((p) => (
+                <div key={p.id} className={`border rounded-xl p-4 ${editingPurchaser === p.id ? "border-green-400 border-dashed bg-emerald-50/30" : "border-gray-100"}`}>
+                  {editingPurchaser === p.id ? (
+                    <div className="space-y-3">
+                      <div className="grid sm:grid-cols-2 gap-3">
+                        <input type="text" value={editPurchaserForm.name} onChange={(e) => setEditPurchaserForm((prev) => ({ ...prev, name: e.target.value }))} placeholder="Name" className={inputClass} />
+                        <input type="email" value={editPurchaserForm.email} onChange={(e) => setEditPurchaserForm((prev) => ({ ...prev, email: e.target.value }))} placeholder="Email" className={inputClass} />
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <button type="button" onClick={() => setEditingPurchaser(null)} className="px-3 py-1.5 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition">Cancel</button>
+                        <button type="button" onClick={() => saveEditPurchaser(p.id)} disabled={savingEdit} className="px-3 py-1.5 text-sm text-white bg-persimmon-green rounded-lg font-medium hover:bg-persimmon-green-dark transition disabled:opacity-50">{savingEdit ? "Saving..." : "Save"}</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-gray-700 truncate">{p.name}</p>
+                        <p className="text-xs text-gray-400 truncate">{p.email}</p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0 ml-3">
+                        <button type="button" onClick={() => startEditPurchaser(p)} className="px-3 py-1.5 text-xs text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition">Edit</button>
+                        <button type="button" onClick={() => deletePurchaser(p.id)} className="px-3 py-1.5 text-xs text-red-500 border border-red-200 rounded-lg hover:bg-red-50 transition">Remove</button>
                       </div>
                     </div>
                   )}

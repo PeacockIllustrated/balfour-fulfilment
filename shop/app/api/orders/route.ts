@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
     // Recalculate totals server-side (never trust client)
     let subtotal = 0;
-    const validatedItems = items.map((item: { code: string; baseCode?: string; name: string; size?: string; material?: string; description?: string; price: number; quantity: number; customSign?: { signType: string; textContent: string; shape: string; additionalNotes: string }; customFieldValues?: Array<{ label: string; key: string; value: string }> }) => {
+    const validatedItems = items.map((item: { code: string; baseCode?: string; name: string; size?: string; material?: string; description?: string; price: number; quantity: number; customSign?: { signType: string; textContent: string; shape: string; additionalNotes: string }; customSizeData?: Record<string, unknown>; customFieldValues?: Array<{ label: string; key: string; value: string }> }) => {
       const price = Math.round(Number(item.price) * 100) / 100;
       const quantity = Math.max(1, Math.min(9999, Math.floor(Number(item.quantity))));
       const isCustomSign = !!item.customSign;
@@ -57,6 +57,8 @@ export async function POST(req: NextRequest) {
           shape: String(item.customSign.shape),
           additionalNotes: String(item.customSign.additionalNotes || ""),
         };
+      } else if (item.customSizeData) {
+        custom_data = item.customSizeData;
       } else if (item.customFieldValues && item.customFieldValues.length > 0) {
         custom_data = {
           type: "custom_fields" as const,
@@ -231,6 +233,18 @@ export async function GET() {
       .select("*")
       .in("order_id", orderIds);
 
+    // Fix any orders stuck on awaiting_po that already have a PO uploaded
+    const stuckOrders = orders.filter(
+      (o) => o.status === "awaiting_po" && o.po_document_name
+    );
+    if (stuckOrders.length > 0) {
+      await supabase
+        .from("bal_orders")
+        .update({ status: "new" })
+        .in("id", stuckOrders.map((o) => o.id));
+      for (const o of stuckOrders) o.status = "new";
+    }
+
     // Transform to match frontend expected shape
     const transformed = orders.map((o) => ({
       orderNumber: o.order_number,
@@ -245,6 +259,7 @@ export async function GET() {
       purchaserEmail: o.purchaser_email || null,
       poNumber: o.po_number,
       poDocumentName: o.po_document_name || null,
+      dnDocumentName: o.dn_document_name || null,
       notes: o.notes,
       items: (allItems || [])
         .filter((item) => item.order_id === o.id)

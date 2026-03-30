@@ -68,7 +68,23 @@ export default function BasketPage() {
                   ))}
                 </div>
               )}
-              {item.customSign ? (
+              {item.customSizeData && (
+                <div className="mt-1">
+                  <p className="text-xs text-gray-500">
+                    {item.customSizeData.width} x {item.customSizeData.height}mm
+                  </p>
+                  {item.customSizeData.requiresQuote ? (
+                    <span className="inline-block mt-0.5 px-2 py-0.5 bg-amber-50 text-amber-600 text-[10px] font-semibold rounded-full">
+                      Requires quote
+                    </span>
+                  ) : item.customSizeData.matchedSize ? (
+                    <span className="inline-block mt-0.5 px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-semibold rounded-full">
+                      Priced as {item.customSizeData.matchedSize}
+                    </span>
+                  ) : null}
+                </div>
+              )}
+              {item.customSign || item.customSizeData?.requiresQuote ? (
                 <p className="text-amber-600 font-semibold mt-1.5 text-sm">Quote on request</p>
               ) : (
                 <p className="text-persimmon-navy font-semibold mt-1.5 text-sm">
@@ -105,7 +121,7 @@ export default function BasketPage() {
                 </button>
               </div>
 
-              {item.customSign ? (
+              {item.customSign || item.customSizeData?.requiresQuote ? (
                 <p className="font-bold text-amber-600 text-xs">Quote</p>
               ) : (
                 <p className="font-bold text-persimmon-navy text-sm">
@@ -135,7 +151,7 @@ export default function BasketPage() {
           </span>
         </div>
 
-        {items.some((i) => i.customSign) && (
+        {items.some((i) => i.customSign || i.customSizeData?.requiresQuote) && (
           <p className="text-xs text-amber-600 mb-4 leading-relaxed">
             This order includes custom sign requests. Final pricing for those items will be confirmed after review.
           </p>

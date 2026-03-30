@@ -8,6 +8,18 @@ function esc(str: string | null | undefined): string {
     .replace(/"/g, "&quot;");
 }
 
+/** Shared branded email header used by all email functions */
+function emailHeaderHtml(title: string): string {
+  return `
+    <div style="background:#002b49;padding:24px 32px;border-radius:12px 12px 0 0">
+      <h1 style="color:white;margin:0;font-size:20px">${esc(title)}</h1>
+    </div>
+    <div style="height:3px;background:#005d99"></div>
+    <div style="text-align:center;padding:8px 32px 0">
+      <p style="margin:0;font-size:11px;color:#999">Balfour Beatty</p>
+    </div>`;
+}
+
 export interface OrderItem {
   code: string;
   base_code: string | null;
@@ -80,6 +92,27 @@ function itemRowsHtml(items: OrderItem[], siteUrl?: string): string {
     </tr>`;
       }
 
+      // Custom size item (has dimension data in custom_data)
+      if (item.custom_data && (item.custom_data as Record<string, unknown>).width) {
+        const cd = item.custom_data as Record<string, unknown>;
+        const dimText = `${cd.width} x ${cd.height}mm`;
+        const matchText = cd.matchedSize ? `Priced as ${cd.matchedSize}` : "Requires quote";
+        const imgCode = (item.base_code || item.code.replace(/\/.*$/, "")).replace(/\//g, "_");
+        return `
+    <tr>
+      <td style="padding:8px 4px 8px 12px;border-bottom:1px solid #eee;vertical-align:middle;width:48px">
+        <img src="${siteUrl ? `${siteUrl}/images/products/${imgCode}.png` : `cid:${imgCode}`}" alt="${esc(item.code)}" width="40" height="40" style="display:block;border-radius:4px;object-fit:contain;background:#f8f8f8" />
+      </td>
+      <td style="padding:8px 8px;border-bottom:1px solid #eee;font-size:14px;vertical-align:middle">
+        <strong style="color:#333">${esc(item.code)}</strong><br/>
+        <span style="color:#666;font-size:12px">${esc(item.name)} (${dimText})</span><br/>
+        <span style="color:${cd.requiresQuote ? "#d97706" : "#059669"};font-size:11px;font-weight:bold">${matchText}</span>
+      </td>
+      <td style="padding:8px 8px;border-bottom:1px solid #eee;font-size:14px;text-align:center;vertical-align:middle">${item.quantity}</td>
+      <td style="padding:8px 12px 8px 8px;border-bottom:1px solid #eee;font-size:14px;text-align:right;vertical-align:middle">${cd.requiresQuote ? '<span style="color:#d97706;font-weight:bold;font-size:12px">Quote</span>' : `&pound;${item.line_total.toFixed(2)}`}</td>
+    </tr>`;
+      }
+
       // Standard item (with optional custom field values)
       const imgCode = (item.base_code || item.code.replace(/\/.*$/, "")).replace(/\//g, "_");
       const customFieldsHtml = item.custom_data?.fields
@@ -133,9 +166,7 @@ export function buildNestPOEmailHtml(order: OrderData, siteUrl: string, raisePoU
     subject: `${raisePoUrl ? "PO Request" : "PO Raised"} — ${order.orderNumber} — ${esc(order.siteName)}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;${wb}">
-        <div style="background:#002b49;padding:24px 32px;border-radius:12px 12px 0 0">
-          <h1 style="color:white;margin:0;font-size:20px">Purchase Order Request</h1>
-        </div>
+        ${emailHeaderHtml("Purchase Order Request")}
         <div style="padding:32px;border:1px solid #eee;border-top:none;border-radius:0 0 12px 12px">
           <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px 20px;margin-bottom:24px">
             <p style="margin:0;font-size:18px;font-weight:bold;color:#002b49">${order.orderNumber}</p>
@@ -192,9 +223,7 @@ export function buildPurchaserPOEmailHtml(order: OrderData, poUploadUrl: string)
     subject: `Purchase Order Required — ${order.orderNumber} — ${esc(order.siteName)}`,
     html: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;${wb}">
-        <div style="background:#002b49;padding:24px 32px;border-radius:12px 12px 0 0">
-          <h1 style="color:white;margin:0;font-size:20px">Purchase Order Required</h1>
-        </div>
+        ${emailHeaderHtml("Purchase Order Required")}
         <div style="padding:32px;border:1px solid #eee;border-top:none;border-radius:0 0 12px 12px">
           <p style="font-size:15px;color:#333;margin:0 0 20px">
             Hi${order.purchaserName ? ` ${esc(order.purchaserName)}` : ""},

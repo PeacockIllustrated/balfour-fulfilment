@@ -7,6 +7,7 @@ import {
   Image,
   Svg,
   Path,
+  Rect,
   StyleSheet,
   renderToBuffer,
 } from "@react-pdf/renderer";
@@ -344,17 +345,12 @@ async function buildImageMap(
 }
 
 /* ------------------------------------------------------------------ */
-/*  Onesign icon (SVG path data from shop/assets/icon.svg)             */
+/*  Balfour Beatty logo placeholder                                    */
 /* ------------------------------------------------------------------ */
-function OnesignIcon({ size = 28 }: { size?: number }) {
-  const aspect = 28.71 / 24.32;
-  const w = size * aspect;
+function BalfourLogo({ size = 28 }: { size?: number }) {
   return (
-    <Svg viewBox="0 0 28.71 24.32" width={w} height={size}>
-      <Path
-        d="M24.88,3.25c-2.55-2.17-6.06-3.25-10.51-3.25S6.4,1.08,3.84,3.25C1.28,5.42,0,8.39,0,12.15s1.29,6.73,3.86,8.92c2.36,2,5.5,3.08,9.42,3.25v-10.13H5.23v-4.99h.68c2.5,0,4.4-.39,5.7-1.18,1.3-.79,2.14-2.06,2.52-3.8h6.32v19.26c1.7-.55,3.17-1.35,4.42-2.42,2.56-2.18,3.84-5.16,3.84-8.92s-1.28-6.73-3.83-8.9"
-        fill={C.white}
-      />
+    <Svg viewBox="0 0 32 32" width={size} height={size}>
+      <Rect width="32" height="32" rx="4" fill={C.white} />
     </Svg>
   );
 }
@@ -507,12 +503,11 @@ function DeliveryNoteDocument({
       <Page size="A4" style={s.page}>
         {/* ---- Header bar ---- */}
         <View style={s.headerBar}>
-          <OnesignIcon size={26} />
+          <BalfourLogo size={26} />
           <Text style={s.headerTitle}>DELIVERY NOTE</Text>
         </View>
         <Text style={s.headerSub}>
-          Onesign and Digital {"  |  "} D86 Princesway, Gateshead NE11 0TU
-          {"  |  "} 0191 487 6767
+          Balfour Beatty
         </Text>
 
         <View style={s.body}>
@@ -591,7 +586,7 @@ function DeliveryNoteDocument({
         {/* ---- Footer ---- */}
         <View style={s.footer} fixed>
           <Text style={s.footerText}>
-            Onesign and Digital {"  |  "} onesignanddigital.com
+            Balfour Beatty
           </Text>
         </View>
       </Page>

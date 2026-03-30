@@ -27,6 +27,17 @@ export interface BasketItem {
   image: string | null;
   customSign?: CustomSignData;
   customFieldValues?: CustomFieldValue[];
+  customSizeData?: {
+    width: number;
+    height: number;
+    material: string;
+    matchedCode: string | null;
+    matchedSize: string | null;
+    matchedPrice: number | null;
+    requiresQuote: boolean;
+    originalProduct: string;
+    fields?: Array<{ label: string; key: string; value: string }>;
+  };
 }
 
 interface BasketContextType {

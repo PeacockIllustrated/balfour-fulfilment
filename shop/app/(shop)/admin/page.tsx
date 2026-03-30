@@ -17,6 +17,10 @@ interface OrderItem {
     shape?: string;
     additionalNotes?: string;
     fields?: Array<{ label: string; key: string; value: string }>;
+    width?: number;
+    height?: number;
+    matchedSize?: string;
+    requiresQuote?: boolean;
   } | null;
 }
 
@@ -33,6 +37,7 @@ interface Order {
   purchaserEmail: string | null;
   poNumber: string | null;
   poDocumentName: string | null;
+  dnDocumentName: string | null;
   notes: string | null;
   items: OrderItem[];
   subtotal: number;
@@ -518,16 +523,64 @@ export default function AdminPage() {
                     )}
                     <span className="flex-1" />
                     <a
+                      href={`/api/orders/${order.orderNumber}/quote`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center gap-1 text-[11px] text-gray-400 hover:text-persimmon-green transition"
+                      title="Download Quote PDF"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Quote
+                    </a>
+                    <a
+                      href={`/api/orders/${order.orderNumber}/order-list`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center gap-1 text-[11px] text-gray-400 hover:text-persimmon-green transition"
+                      title="Download Order List PDF"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                      List
+                    </a>
+                    <a
                       href={`/api/orders/${order.orderNumber}/delivery-note`}
                       onClick={(e) => e.stopPropagation()}
                       className="inline-flex items-center gap-1 text-[11px] text-gray-400 hover:text-persimmon-green transition"
+                      title="Download Delivery Note PDF"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                       DN
                     </a>
-                    {order.poDocumentName && (
+                    {order.dnDocumentName ? (
+                      <a
+                        href={`/api/orders/${order.orderNumber}/download-dn`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1 text-[11px] text-emerald-600 hover:text-emerald-700 transition"
+                        title="Download signed DN"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Signed DN
+                      </a>
+                    ) : (
+                      <a
+                        href={`/dn-upload/${order.orderNumber}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1 text-[11px] text-amber-500 hover:text-amber-600 transition"
+                        title="Upload signed DN"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        Upload DN
+                      </a>
+                    )}
+                    {order.poDocumentName ? (
                       <a
                         href={`/api/orders/${order.orderNumber}/download-po`}
                         onClick={(e) => e.stopPropagation()}
@@ -537,6 +590,18 @@ export default function AdminPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                         PO
+                      </a>
+                    ) : (
+                      <a
+                        href={`/po-upload/${order.orderNumber}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1 text-[11px] text-amber-500 hover:text-amber-600 transition"
+                        title="Upload PO"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        Upload PO
                       </a>
                     )}
                   </div>
@@ -642,17 +707,25 @@ export default function AdminPage() {
                       )}
 
                       {/* Download links */}
-                      <div className="flex gap-3">
-                        <a
-                          href={`/api/orders/${order.orderNumber}/delivery-note`}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-persimmon-navy border border-gray-200 rounded-xl hover:bg-gray-50 transition"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
+                      <div className="flex gap-2 flex-wrap">
+                        <a href={`/api/orders/${order.orderNumber}/quote`} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-persimmon-navy border border-gray-200 rounded-xl hover:bg-gray-50 transition" onClick={(e) => e.stopPropagation()}>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                          Quote
+                        </a>
+                        <a href={`/api/orders/${order.orderNumber}/order-list`} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-persimmon-navy border border-gray-200 rounded-xl hover:bg-gray-50 transition" onClick={(e) => e.stopPropagation()}>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                          Order List
+                        </a>
+                        <a href={`/api/orders/${order.orderNumber}/delivery-note`} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-persimmon-navy border border-gray-200 rounded-xl hover:bg-gray-50 transition" onClick={(e) => e.stopPropagation()}>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                           Delivery Note
                         </a>
+                        {order.dnDocumentName && (
+                          <a href={`/api/orders/${order.orderNumber}/download-dn`} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-emerald-700 border border-emerald-200 rounded-xl hover:bg-emerald-50 transition" onClick={(e) => e.stopPropagation()}>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                            {order.dnDocumentName}
+                          </a>
+                        )}
                       </div>
 
                       <div>
@@ -726,6 +799,19 @@ export default function AdminPage() {
                                           </p>
                                         ))}
                                       </div>
+                                    )}
+                                    {item.customData?.matchedSize && (
+                                      <p className="text-xs text-gray-500">
+                                        {item.customData.width && item.customData.height
+                                          ? `${item.customData.width} x ${item.customData.height}mm · `
+                                          : ""}
+                                        Priced as {item.customData.matchedSize}
+                                      </p>
+                                    )}
+                                    {item.customData?.requiresQuote && (
+                                      <span className="inline-block mt-0.5 px-2 py-0.5 bg-amber-50 text-amber-600 text-[10px] font-semibold rounded-full">
+                                        Requires quote
+                                      </span>
                                     )}
                                   </td>
                                   <td className="py-2.5 text-center text-gray-500">{item.quantity}</td>
