@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Balfour Beatty - Digital Procurement for Branded Signage</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  :root {
+    --bb-blue: #005d99;
+    --bb-navy: #002b49;
+    --bb-navy-light: #003d6b;
+    --bb-blue-light: #1a7ab8;
+    --bb-blue-dark: #004477;
+    --bb-gray: #F4F6F8;
+    --bb-gray-dark: #E2E6EA;
+    --bb-gold: #f7bc60;
+    --text-dark: #1a1a1a;
+    --text-body: #444;
+    --text-light: #666;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--text-dark);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @media print {
+    body { margin: 0; }
+    .page { page-break-after: always; break-after: page; }
+    .page:last-child { page-break-after: auto; }
+  }
+
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  /* ========== PAGE 1: COVER ========== */
+  .cover {
+    background: var(--bb-navy);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 50px 55px 40px;
+  }
+
+  .cover .right-accent {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 35%;
+    height: 100%;
+    background: var(--bb-navy-light);
+    opacity: 0.4;
+  }
+
+  .cover .onesign-logo {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 60px;
+  }
+
+  .cover .onesign-logo svg {
+    height: 38px;
+  }
+
+  .cover .case-study-label {
+    position: relative;
+    z-index: 1;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .cover .case-study-label::before {
+    content: '';
+    display: block;
+    width: 30px;
+    height: 2px;
+    background: var(--bb-blue-light);
+  }
+
+  .cover h1 {
+    position: relative;
+    z-index: 1;
+    font-size: 72px;
+    font-weight: 800;
+    line-height: 1.05;
+    max-width: 55%;
+    margin-bottom: 30px;
+  }
+
+  .cover .subtitle {
+    position: relative;
+    z-index: 1;
+    font-size: 16px;
+    font-style: italic;
+    color: rgba(255,255,255,0.75);
+    max-width: 55%;
+    line-height: 1.6;
+  }
+
+  .cover .footer-area {
+    position: absolute;
+    bottom: 40px;
+    left: 55px;
+    z-index: 1;
+  }
+
+  .cover .client-label {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 20px;
+  }
+
+  .cover .footer-line {
+    width: 100%;
+    height: 1px;
+    background: rgba(255,255,255,0.2);
+    margin-bottom: 16px;
+  }
+
+  .cover .footer-company {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .cover .footer-address {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 4px;
+  }
+
+  /* ========== INNER PAGES ========== */
+  .inner-page {
+    padding: 40px 55px 50px;
+    position: relative;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--bb-blue);
+    margin-bottom: 40px;
+  }
+
+  .page-header .onesign-small svg {
+    height: 24px;
+  }
+
+  .page-header .page-title-right {
+    font-size: 11px;
+    color: var(--text-light);
+    letter-spacing: 0.5px;
+  }
+
+  .section-number {
+    font-size: 120px;
+    font-weight: 800;
+    color: var(--bb-gray-dark);
+    position: absolute;
+    top: 60px;
+    right: 55px;
+    line-height: 1;
+    z-index: 0;
+  }
+
+  h2 {
+    font-size: 42px;
+    font-weight: 800;
+    color: var(--bb-navy);
+    line-height: 1.1;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--bb-navy);
+    margin-bottom: 16px;
+  }
+
+  .body-text {
+    font-size: 14px;
+    color: var(--text-body);
+    line-height: 1.75;
+    max-width: 520px;
+  }
+
+  .bullet-list {
+    list-style: none;
+    padding: 0;
+    margin: 24px 0;
+  }
+
+  .bullet-list li {
+    font-size: 14px;
+    color: var(--text-body);
+    padding: 8px 0;
+    padding-left: 20px;
+    position: relative;
+  }
+
+  .bullet-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 16px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bb-blue);
+  }
+
+  .solution-box {
+    background: var(--bb-navy);
+    color: #fff;
+    padding: 24px 30px;
+    border-radius: 6px;
+    margin: 30px 0;
+  }
+
+  .solution-box h3 {
+    color: #fff;
+    margin-bottom: 12px;
+  }
+
+  .solution-box .body-text {
+    color: rgba(255,255,255,0.85);
+    max-width: 100%;
+  }
+
+  .quote-block {
+    border-left: 3px solid var(--bb-blue);
+    padding: 16px 24px;
+    background: var(--bb-gray);
+    margin: 24px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+    line-height: 1.6;
+  }
+
+  /* Screenshot containers */
+  .screenshots-row {
+    display: flex;
+    gap: 30px;
+    margin: 40px 0 20px;
+    justify-content: center;
+  }
+
+  .phone-frame {
+    width: 240px;
+    min-height: 420px;
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .phone-frame .phone-statusbar {
+    height: 28px;
+    background: var(--bb-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .phone-frame .phone-statusbar .notch {
+    width: 80px;
+    height: 16px;
+    background: #fff;
+    border-radius: 0 0 12px 12px;
+  }
+
+  .phone-frame .phone-content {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: var(--bb-gray);
+  }
+
+  .phone-frame .phone-content .screenshot-label {
+    font-size: 11px;
+    color: var(--text-light);
+    font-style: italic;
+    line-height: 1.5;
+    padding: 0 8px;
+  }
+
+  .phone-frame .phone-content .screenshot-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 12px;
+    opacity: 0.3;
+  }
+
+  .screenshot-caption {
+    font-size: 12px;
+    font-style: italic;
+    color: var(--text-light);
+    text-align: center;
+    margin-top: 12px;
+  }
+
+  .trust-note {
+    font-size: 11px;
+    color: var(--bb-blue);
+    font-style: italic;
+    text-align: center;
+    margin-top: 8px;
+    opacity: 0.8;
+  }
+
+  /* Sidebar text on page 2 */
+  .page2-layout {
+    display: flex;
+    gap: 50px;
+  }
+
+  .page2-sidebar {
+    width: 180px;
+    flex-shrink: 0;
+  }
+
+  .page2-sidebar h2 {
+    font-size: 38px;
+  }
+
+  .page2-sidebar .sidebar-quote {
+    font-size: 13px;
+    color: var(--text-light);
+    font-style: italic;
+    line-height: 1.6;
+    margin-top: 300px;
+  }
+
+  .page2-main {
+    flex: 1;
+  }
+
+  /* Page footer */
+  .page-footer {
+    position: absolute;
+    bottom: 20px;
+    left: 55px;
+    right: 55px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--bb-gray-dark);
+    font-size: 11px;
+    color: var(--text-light);
+  }
+
+  /* ========== PAGE 5 (Ordering) - single screenshot layout ========== */
+  .ordering-layout {
+    display: flex;
+    gap: 40px;
+  }
+
+  .ordering-text {
+    flex: 1;
+  }
+
+  .ordering-screenshot {
+    flex-shrink: 0;
+  }
+
+  /* ========== PAGE 8: RESULTS ========== */
+  .results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin: 30px 0;
+  }
+
+  .result-card {
+    padding: 20px 0;
+    border-bottom: 1px solid var(--bb-gray-dark);
+  }
+
+  .result-card:nth-child(odd) {
+    padding-right: 30px;
+    border-right: 1px solid var(--bb-gray-dark);
+  }
+
+  .result-card:nth-child(even) {
+    padding-left: 30px;
+  }
+
+  .result-card:nth-last-child(-n+2) {
+    border-bottom: none;
+  }
+
+  .result-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--bb-navy);
+    margin-bottom: 6px;
+  }
+
+  .result-card p {
+    font-size: 13px;
+    color: var(--text-body);
+    line-height: 1.5;
+  }
+
+  .cta-section {
+    background: var(--bb-navy);
+    color: #fff;
+    padding: 40px;
+    border-radius: 6px;
+    text-align: center;
+    margin-top: 40px;
+  }
+
+  .cta-section h2 {
+    color: #fff;
+    font-size: 36px;
+    margin-bottom: 16px;
+  }
+
+  .cta-section .body-text {
+    color: rgba(255,255,255,0.8);
+    max-width: 480px;
+    margin: 0 auto 24px;
+    text-align: center;
+  }
+
+  .cta-section .email-link {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--bb-blue-light);
+    text-decoration: none;
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  .cta-section .contact-details {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+  }
+
+  .cta-section .company-line {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 16px;
+  }
+
+  /* ========== Structured data list ========== */
+  .data-list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+  }
+
+  .data-list li {
+    font-size: 14px;
+    color: var(--text-body);
+    padding: 6px 0 6px 20px;
+    position: relative;
+  }
+
+  .data-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 14px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bb-blue);
+  }
+
+  /* Phone mockup with actual Persimmon screenshot styling */
+  .phone-mockup {
+    width: 240px;
+    background: #fff;
+    border-radius: 28px;
+    padding: 8px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .phone-mockup-inner {
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--bb-gray);
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .phone-mockup-inner .mock-header {
+    width: 100%;
+    padding: 10px 16px;
+    background: #fff;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .phone-mockup-inner .mock-header .bb-dot {
+    width: 24px;
+    height: 24px;
+    background: var(--bb-blue);
+    border-radius: 4px;
+  }
+
+  .phone-mockup-inner .mock-header .bb-text {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--bb-navy);
+  }
+
+  .phone-mockup-inner .mock-card {
+    width: 100%;
+    background: #fff;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+    text-align: left;
+  }
+
+  .phone-mockup-inner .mock-card .card-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--bb-blue);
+    margin-bottom: 4px;
+  }
+
+  .phone-mockup-inner .mock-card .card-desc {
+    font-size: 9px;
+    color: var(--text-light);
+    line-height: 1.4;
+  }
+
+  .phone-mockup-inner .mock-btn {
+    display: inline-block;
+    background: var(--bb-blue);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 8px 24px;
+    border-radius: 6px;
+    margin-top: 12px;
+  }
+
+  /* Persimmon screenshot indicator */
+  .persimmon-screenshot-note {
+    background: rgba(0, 93, 153, 0.06);
+    border: 1px dashed var(--bb-blue);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 10px;
+    color: var(--bb-blue);
+    text-align: center;
+    margin-top: 4px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- PAGE 1: COVER                                                  -->
+<!-- ============================================================ -->
+<div class="page cover">
+  <div class="right-accent"></div>
+
+  <!-- Onesign logo (white) -->
+  <div class="onesign-logo">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" height="38">
+      <text x="0" y="38" font-family="Inter, Arial, sans-serif" font-size="38" font-weight="800" fill="#ffffff">
+        <tspan fill="#ffffff" font-size="44">O</tspan>nesign
+      </text>
+      <text x="2" y="50" font-family="Inter, Arial, sans-serif" font-size="8" fill="rgba(255,255,255,0.5)" letter-spacing="0.5">
+        Design . Manufacture . Install
+      </text>
+    </svg>
+  </div>
+
+  <div class="case-study-label">CASE STUDY</div>
+
+  <h1>Digital Procurement for Branded Signage</h1>
+
+  <p class="subtitle">
+    How a single platform replaced spreadsheets,
+    emails and manual coordination - proven with
+    Persimmon Homes, now ready for Balfour Beatty
+  </p>
+
+  <div class="footer-area">
+    <div class="client-label">BALFOUR BEATTY</div>
+    <div class="footer-line" style="width: 300px;"></div>
+    <div class="footer-company">Onesign and Digital</div>
+    <div class="footer-address">D86 Princesway, Gateshead NE11 0TU<br>onesignanddigital.com &bull; 0191 487 6767</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 2: THE CHALLENGE / THE SOLUTION                          -->
+<!-- ============================================================ -->
+<div class="page inner-page">
+  <div class="page-header">
+    <div class="onesign-small">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" height="24">
+        <text x="0" y="34" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800" fill="var(--bb-navy)">
+          <tspan fill="var(--bb-blue)" font-size="38">O</tspan>nesign
+        </text>
+      </svg>
+    </div>
+    <div class="page-title-right">Case Study &mdash; Balfour Beatty Signage Portal</div>
+  </div>
+
+  <div class="section-number">01</div>
+
+  <div class="page2-layout">
+    <div class="page2-sidebar">
+      <div style="width: 30px; height: 2px; background: var(--bb-blue); margin-bottom: 16px;"></div>
+      <h2>The Challenge</h2>
+
+      <p class="sidebar-quote">
+        Procurement processes
+        that work &mdash; but consume
+        far more time and
+        coordination than they
+        should.
+      </p>
+    </div>
+
+    <div class="page2-main">
+      <p class="body-text">
+        For large housebuilders managing branded signage across
+        hundreds of active sites, procurement is often more complex
+        than it needs to be. Requirements arrive via spreadsheets,
+        brand guidelines live in separate documents, and procurement
+        teams spend hours reconciling requests.
+      </p>
+
+      <ul class="bullet-list">
+        <li>Limited visibility of what is ordered across sites</li>
+        <li>Inconsistent brand application without visual references</li>
+        <li>Version control issues with shared spreadsheets</li>
+        <li>Manual administration for every order</li>
+        <li>Extended lead times from clarification cycles</li>
+      </ul>
+
+      <div class="solution-box">
+        <h3>The Solution</h3>
+        <p class="body-text">
+          We've already solved this for Persimmon Homes &mdash; building a branded
+          digital procurement portal that lets site managers browse approved
+          signage with images, select variants, and submit orders directly.
+          Procurement teams get structured data, full visibility, and a
+          single source of truth. We're now bringing that same proven
+          platform to Balfour Beatty, fully tailored to your brand and catalogue.
+        </p>
+      </div>
+
+      <div class="quote-block">
+        One platform. Visual product selection. Structured
+        ordering. Complete visibility from site to sign.
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>onesignanddigital.com</span>
+    <span>2</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 3: THE PLATFORM - SECURE ACCESS                          -->
+<!-- ============================================================ -->
+<div class="page inner-page">
+  <div class="page-header">
+    <div class="onesign-small">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" height="24">
+        <text x="0" y="34" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800" fill="var(--bb-navy)">
+          <tspan fill="var(--bb-blue)" font-size="38">O</tspan>nesign
+        </text>
+      </svg>
+    </div>
+    <div class="page-title-right">Case Study &mdash; Balfour Beatty Signage Portal</div>
+  </div>
+
+  <div class="section-number">02</div>
+
+  <h2>The Platform</h2>
+
+  <p class="body-text" style="max-width: 100%;">
+    The Balfour Beatty Signage Portal replaces fragmented workflows with a single digital ordering experience.
+  </p>
+
+  <h3 style="margin-top: 24px; color: var(--bb-blue);">Secure Access &amp; Category Browsing</h3>
+
+  <p class="body-text" style="max-width: 100%;">
+    Site managers log in through a branded entry point. On login, they see all available signage categories &mdash; Site
+    Setup Packs, Environmental Signs, Health &amp; Safety, and more.
+  </p>
+
+  <div class="screenshots-row">
+    <!-- Login screen mockup -->
+    <div>
+      <div class="phone-mockup">
+        <div class="phone-mockup-inner" style="min-height: 380px; background: linear-gradient(180deg, var(--bb-navy) 0%, var(--bb-navy-light) 100%);">
+          <div style="margin-bottom: 24px;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1547 1186" width="56" height="43">
+              <path fill-rule="evenodd" fill="#fff" d="m347.7 1181.1h-347.7v-1181.1h342.8c95.8 0 168.9 8.1 220.9 26 50.4 16.2 87.7 42.2 105.6 78 19.5 34.1 29.3 81.2 29.3 139.7v79.6c0 42.2-6.5 81.2-19.5 112.1-13 29.3-34.2 55.2-68.3 76.4-34.1 19.5-74.7 34.1-128.3 40.6v9.7c61.7 4.9 107.2 13 134.8 27.7 29.3 14.6 50.4 42.2 61.8 82.8 11.3 39 17.8 99.1 17.8 182v43.8c0 40.7-4.8 76.4-13 108.9-9.7 32.5-24.3 61.7-48.7 87.7-22.7 26-58.5 47.1-105.6 63.4-47.1 14.6-107.2 22.7-181.9 22.7zm-71.5-701.8h47.1c27.6 0 52-6.5 69.8-22.8 17.9-16.2 27.7-35.7 27.7-60.1v-156c0-22.7-9.8-40.6-27.7-55.2-19.5-14.6-40.6-21.1-61.7-21.1h-55.2zm58.5 531.3c24.3 0 43.8-9.8 60.1-27.7 17.8-16.2 26-39 26-61.7l1.6-191.7c0-22.8-8.1-40.6-22.8-55.3q-21.9-24.3-53.6-24.3h-69.8v360.7z"/>
+              <path fill-rule="evenodd" fill="#fff" d="m1516.8 108.1c19.5 34.1 29.3 81.3 29.3 139.7v79.6c0 42.3-6.5 81.3-19.5 112.1-13 29.3-35.7 55.3-68.2 76.4-32.5 19.5-74.8 34.1-126.8 40.6v9.8c60.2 4.8 105.6 13 133.3 27.6 29.2 14.6 50.3 42.2 61.7 82.8 11.4 39 17.9 99.2 17.9 182v43.9c0 40.6-4.9 76.3-13 108.8-8.2 32.5-22.8 61.8-47.1 87.8-22.8 26-58.5 47.1-105.6 63.3-48.8 14.6-107.3 22.8-182 22.8h-349.3v-1181.2h342.8c95.9 0 169 8.2 220.9 24.4 52 17.9 87.8 43.9 105.6 79.6zm-389.8 60.1v315.2h45.4c27.7 0 52-6.5 69.9-22.7 17.9-16.3 27.6-35.8 27.6-60.1v-156c0-22.8-9.7-40.6-27.6-55.2-19.5-14.7-40.6-21.2-61.7-21.2zm142.9 565.4c0-22.7-8.1-40.6-22.7-55.2-16.3-16.3-32.5-24.4-53.6-24.4h-69.9v362.3h58.5c24.4 0 43.9-9.7 60.1-27.6 19.5-16.3 27.6-39 27.6-61.8z"/>
+            </svg>
+          </div>
+          <div style="color: #fff; font-size: 16px; font-weight: 700; margin-bottom: 2px;">Balfour Beatty</div>
+          <div style="color: rgba(255,255,255,0.6); font-size: 10px; margin-bottom: 24px;">Signage Portal</div>
+          <div style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 8px 16px; width: 80%; text-align: left; margin-bottom: 6px;">
+            <div style="font-size: 8px; color: rgba(255,255,255,0.5); text-transform: uppercase; margin-bottom: 2px;">Password</div>
+            <div style="font-size: 10px; color: rgba(255,255,255,0.3);">Enter your password</div>
+          </div>
+          <div style="background: var(--bb-blue); color: #fff; font-size: 11px; font-weight: 600; padding: 10px 0; width: 80%; text-align: center; border-radius: 6px; margin-top: 8px;">Sign In</div>
+          <div style="color: rgba(255,255,255,0.3); font-size: 8px; margin-top: 12px;">Balfour Beatty Fulfilment</div>
+        </div>
+      </div>
+      <p class="screenshot-caption">Branded login screen</p>
+    </div>
+
+    <!-- Category overview mockup -->
+    <div>
+      <div class="phone-mockup">
+        <div class="phone-mockup-inner" style="min-height: 380px; padding: 12px; background: #fff; align-items: stretch; justify-content: flex-start;">
+          <div class="mock-header">
+            <div class="bb-dot" style="border-radius: 3px; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1547 1186" width="12" height="9">
+                <path fill-rule="evenodd" fill="#fff" d="m347.7 1181.1h-347.7v-1181.1h342.8c95.8 0 168.9 8.1 220.9 26 50.4 16.2 87.7 42.2 105.6 78 19.5 34.1 29.3 81.2 29.3 139.7v79.6c0 42.2-6.5 81.2-19.5 112.1-13 29.3-34.2 55.2-68.3 76.4-34.1 19.5-74.7 34.1-128.3 40.6v9.7c61.7 4.9 107.2 13 134.8 27.7 29.3 14.6 50.4 42.2 61.8 82.8 11.3 39 17.8 99.1 17.8 182v43.8c0 40.7-4.8 76.4-13 108.9-9.7 32.5-24.3 61.7-48.7 87.7-22.7 26-58.5 47.1-105.6 63.4-47.1 14.6-107.2 22.7-181.9 22.7zm-71.5-701.8h47.1c27.6 0 52-6.5 69.8-22.8 17.9-16.2 27.7-35.7 27.7-60.1v-156c0-22.7-9.8-40.6-27.7-55.2-19.5-14.6-40.6-21.1-61.7-21.1h-55.2zm58.5 531.3c24.3 0 43.8-9.8 60.1-27.7 17.8-16.2 26-39 26-61.7l1.6-191.7c0-22.8-8.1-40.6-22.8-55.3q-21.9-24.3-53.6-24.3h-69.8v360.7z"/>
+                <path fill-rule="evenodd" fill="#fff" d="m1516.8 108.1c19.5 34.1 29.3 81.3 29.3 139.7v79.6c0 42.3-6.5 81.3-19.5 112.1-13 29.3-35.7 55.3-68.2 76.4-32.5 19.5-74.8 34.1-126.8 40.6v9.8c60.2 4.8 105.6 13 133.3 27.6 29.2 14.6 50.3 42.2 61.7 82.8 11.4 39 17.9 99.2 17.9 182v43.9c0 40.6-4.9 76.3-13 108.8-8.2 32.5-22.8 61.8-47.1 87.8-22.8 26-58.5 47.1-105.6 63.3-48.8 14.6-107.3 22.8-182 22.8h-349.3v-1181.2h342.8c95.9 0 169 8.2 220.9 24.4 52 17.9 87.8 43.9 105.6 79.6zm-389.8 60.1v315.2h45.4c27.7 0 52-6.5 69.9-22.7 17.9-16.3 27.6-35.8 27.6-60.1v-156c0-22.8-9.7-40.6-27.6-55.2-19.5-14.7-40.6-21.2-61.7-21.2zm142.9 565.4c0-22.7-8.1-40.6-22.7-55.2-16.3-16.3-32.5-24.4-53.6-24.4h-69.9v362.3h58.5c24.4 0 43.9-9.7 60.1-27.6 19.5-16.3 27.6-39 27.6-61.8z"/>
+              </svg>
+            </div>
+            <span class="bb-text">Balfour Beatty</span>
+            <span style="font-size: 8px; color: var(--text-light); margin-left: auto;">Signage Portal</span>
+          </div>
+          <div style="text-align: left; width: 100%; padding: 4px 4px 8px;">
+            <div style="font-size: 15px; font-weight: 700; color: var(--bb-navy);">Construction Signage</div>
+            <div style="font-size: 9px; color: var(--text-light); margin-top: 2px;">Browse our full range of construction site signage. Select a category below.</div>
+          </div>
+          <div class="mock-card" style="border-left: 3px solid var(--bb-blue);">
+            <div class="card-title">Site Setup Pack</div>
+            <div class="card-desc">Save money and time when ordering signage with these great value temporary...</div>
+          </div>
+          <div class="mock-card" style="border-left: 3px solid var(--bb-blue);">
+            <div class="card-title">Environmental Signs</div>
+            <div class="card-desc">Help protect the environment and raise awareness with temporary environmental...</div>
+            <div style="font-size: 8px; color: var(--bb-blue); margin-top: 4px;">Browse products &rsaquo;</div>
+          </div>
+          <div class="mock-card" style="border-left: 3px solid var(--bb-blue);">
+            <div class="card-title">Site Entrance Signs</div>
+            <div class="card-desc">Ensure site entrances are clearly marked for workers and visitors...</div>
+          </div>
+        </div>
+      </div>
+      <p class="screenshot-caption">Category overview</p>
+    </div>
+  </div>
+
+  <p class="trust-note">Screenshots shown from the live Persimmon Homes portal &mdash; your Balfour Beatty portal is identically featured, fully branded to your identity.</p>
+
+  <div class="page-footer">
+    <span>onesignanddigital.com</span>
+    <span>3</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 4: VISUAL PRODUCT CATALOG                                -->
+<!-- ============================================================ -->
+<div class="page inner-page">
+  <div class="page-header">
+    <div class="onesign-small">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" height="24">
+        <text x="0" y="34" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800" fill="var(--bb-navy)">
+          <tspan fill="var(--bb-blue)" font-size="38">O</tspan>nesign
+        </text>
+      </svg>
+    </div>
+    <div class="page-title-right">Case Study &mdash; Balfour Beatty Signage Portal</div>
+  </div>
+
+  <div class="section-number">03</div>
+
+  <h2>Visual Product Catalog</h2>
+
+  <p class="body-text" style="max-width: 100%;">
+    Products are displayed with images, codes, names, and pricing. Each product page shows all available size and
+    material variants with clear pricing. No more guessing from text descriptions.
+  </p>
+
+  <div class="screenshots-row">
+    <!-- Product grid mockup -->
+    <div>
+      <div class="phone-mockup">
+        <div class="phone-mockup-inner" style="min-height: 380px; padding: 12px; background: #fff; align-items: stretch; justify-content: flex-start;">
+          <div class="mock-header">
+            <div class="bb-dot" style="border-radius: 3px; width: 20px; height: 20px;"></div>
+            <span class="bb-text" style="font-size: 10px;">Balfour Beatty</span>
+          </div>
+          <div style="text-align: left; width: 100%; padding: 2px 4px 6px;">
+            <div style="font-size: 9px; color: var(--bb-blue);">&lsaquo; All Categories</div>
+            <div style="font-size: 14px; font-weight: 700; color: var(--bb-navy); margin-top: 4px;">Environmental Signs</div>
+            <div style="font-size: 8px; color: var(--text-light);">36 products</div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%;">
+            <div style="background: var(--bb-gray); border-radius: 6px; padding: 8px; text-align: left;">
+              <div style="width: 100%; height: 60px; background: var(--bb-gray-dark); border-radius: 4px; margin-bottom: 6px;"></div>
+              <div style="font-size: 8px; color: var(--bb-blue); font-weight: 600;">PA518</div>
+              <div style="font-size: 9px; font-weight: 600; color: var(--text-dark);">Hazardous Waste Station</div>
+              <div style="font-size: 10px; font-weight: 700; color: var(--text-dark); margin-top: 2px;">&pound;16.82</div>
+            </div>
+            <div style="background: var(--bb-gray); border-radius: 6px; padding: 8px; text-align: left;">
+              <div style="width: 100%; height: 60px; background: var(--bb-gray-dark); border-radius: 4px; margin-bottom: 6px;"></div>
+              <div style="font-size: 8px; color: var(--bb-blue); font-weight: 600;">PA52</div>
+              <div style="font-size: 9px; font-weight: 600; color: var(--text-dark);">Site Setup Pack</div>
+              <div style="font-size: 10px; font-weight: 700; color: var(--text-dark); margin-top: 2px;">&pound;231.30</div>
+            </div>
+            <div style="background: var(--bb-gray); border-radius: 6px; padding: 8px; text-align: left;">
+              <div style="width: 100%; height: 60px; background: var(--bb-gray-dark); border-radius: 4px; margin-bottom: 6px;"></div>
+              <div style="font-size: 8px; color: var(--bb-blue); font-weight: 600;">PA520</div>
+              <div style="font-size: 9px; font-weight: 600; color: var(--text-dark);">Paint Tins</div>
+              <div style="font-size: 10px; font-weight: 700; color: var(--text-dark); margin-top: 2px;">&pound;3.46</div>
+            </div>
+            <div style="background: var(--bb-gray); border-radius: 6px; padding: 8px; text-align: left;">
+              <div style="width: 100%; height: 60px; background: var(--bb-gray-dark); border-radius: 4px; margin-bottom: 6px;"></div>
+              <div style="font-size: 8px; color: var(--bb-blue); font-weight: 600;">PA521</div>
+              <div style="font-size: 9px; font-weight: 600; color: var(--text-dark);">Mastic Tubes</div>
+              <div style="font-size: 10px; font-weight: 700; color: var(--text-dark); margin-top: 2px;">&pound;3.46</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="screenshot-caption">Product grid with images and pricing</p>
+    </div>
+
+    <!-- Variant selection mockup -->
+    <div>
+      <div class="phone-mockup">
+        <div class="phone-mockup-inner" style="min-height: 380px; padding: 12px; background: #fff; align-items: stretch; justify-content: flex-start;">
+          <div class="mock-header">
+            <div class="bb-dot" style="border-radius: 3px; width: 20px; height: 20px;"></div>
+            <span class="bb-text" style="font-size: 10px;">Balfour Beatty</span>
+          </div>
+          <div style="text-align: left; width: 100%; padding: 2px 4px 6px;">
+            <div style="font-size: 7px; color: var(--text-light);">All Categories &rsaquo; Site Setup Pack &rsaquo; PA115</div>
+            <div style="font-size: 9px; font-weight: 600; color: var(--bb-blue); margin-top: 4px;">Site Setup Pack</div>
+          </div>
+          <div style="width: 100%; height: 120px; background: var(--bb-gray); border-radius: 8px; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
+            <div style="font-size: 9px; color: var(--text-light); font-style: italic;">Product preview image</div>
+          </div>
+          <div style="font-size: 8px; color: var(--text-light); font-style: italic; margin-bottom: 8px; text-align: center;">Preview image &mdash; final artwork will be professionally produced to order</div>
+          <div style="text-align: left; width: 100%;">
+            <div style="font-size: 8px; color: var(--bb-blue); font-weight: 600;">PA115</div>
+            <div style="font-size: 13px; font-weight: 700; color: var(--text-dark);">Site Setup Pack</div>
+            <div style="font-size: 8px; text-transform: uppercase; color: var(--text-light); margin-top: 6px; letter-spacing: 0.5px;">Product Details</div>
+            <div style="font-size: 18px; font-weight: 800; color: var(--bb-blue); margin-top: 4px;">&pound;437.39</div>
+          </div>
+        </div>
+      </div>
+      <p class="screenshot-caption">Variant selection with preview</p>
+    </div>
+  </div>
+
+  <p class="trust-note">Screenshots shown from the live Persimmon Homes portal &mdash; your Balfour Beatty portal is identically featured, fully branded to your identity.</p>
+
+  <div class="page-footer">
+    <span>onesignanddigital.com</span>
+    <span>4</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 5: THE ORDERING EXPERIENCE                               -->
+<!-- ============================================================ -->
+<div class="page inner-page">
+  <div class="page-header">
+    <div class="onesign-small">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" height="24">
+        <text x="0" y="34" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800" fill="var(--bb-navy)">
+          <tspan fill="var(--bb-blue)" font-size="38">O</tspan>nesign
+        </text>
+      </svg>
+    </div>
+    <div class="page-title-right">Case Study &mdash; Balfour Beatty Signage Portal</div>
+  </div>
+
+  <div class="section-number">04</div>
+
+  <div class="ordering-layout">
+    <div class="ordering-text">
+      <h2 style="font-size: 36px;">The Ordering Experience</h2>
+
+      <h3 style="color: var(--bb-blue);">Basket &amp; Checkout</h3>
+
+      <p class="body-text">
+        Selected items are summarised in a basket with images,
+        quantities, and a full pricing breakdown including VAT.
+      </p>
+      <p class="body-text" style="margin-top: 12px;">
+        At checkout, users select a contact, delivery site, and
+        optional purchaser from saved records. A PO number and
+        special instructions can be attached.
+      </p>
+      <p class="body-text" style="margin-top: 12px;">
+        Previously saved contacts and sites make repeat ordering
+        fast.
+      </p>
+
+      <h3 style="margin-top: 28px; color: var(--bb-blue);">Structured Data</h3>
+
+      <p class="body-text">Every order captures:</p>
+
+      <ul class="data-list">
+        <li>Contact and site details</li>
+        <li>Product codes and quantities</li>
+        <li>PO reference</li>
+        <li>Special instructions</li>
+      </ul>
+
+      <p class="body-text">Clean, actionable data replaces ambiguous email requests.</p>
+    </div>
+
+    <div class="ordering-screenshot">
+      <div class="phone-mockup" style="width: 220px;">
+        <div class="phone-mockup-inner" style="min-height: 440px; padding: 12px; background: #fff; align-items: stretch; justify-content: flex-start;">
+          <div class="mock-header">
+            <div class="bb-dot" style="border-radius: 3px; width: 18px; height: 18px;"></div>
+            <span class="bb-text" style="font-size: 9px;">Balfour Beatty</span>
+            <span style="font-size: 8px; color: var(--bb-blue); font-weight: 600; margin-left: auto;">&pound;440.85</span>
+          </div>
+          <div style="text-align: left; width: 100%; padding: 2px 0 4px;">
+            <div style="font-size: 8px; color: var(--bb-blue);">&lsaquo; Back to basket</div>
+            <div style="font-size: 16px; font-weight: 800; color: var(--bb-navy); margin-top: 4px;">Checkout</div>
+          </div>
+
+          <div style="text-align: left; width: 100%; margin-bottom: 6px;">
+            <div style="font-size: 10px; font-weight: 600; color: var(--text-dark); margin-bottom: 3px;">Contact Details</div>
+            <div style="border: 1px solid var(--bb-gray-dark); border-radius: 4px; padding: 6px 8px; font-size: 8px; color: var(--text-light);">Select a contact...</div>
+          </div>
+          <div style="text-align: left; width: 100%; margin-bottom: 6px;">
+            <div style="font-size: 10px; font-weight: 600; color: var(--text-dark); margin-bottom: 3px;">Site Details</div>
+            <div style="border: 1px solid var(--bb-gray-dark); border-radius: 4px; padding: 6px 8px; font-size: 8px; color: var(--text-light);">Select a site...</div>
+          </div>
+          <div style="text-align: left; width: 100%; margin-bottom: 6px;">
+            <div style="font-size: 10px; font-weight: 600; color: var(--bb-blue); margin-bottom: 1px;">Purchaser</div>
+            <div style="font-size: 7px; color: var(--text-light); margin-bottom: 3px;">The person responsible for raising the purchase order (optional).</div>
+            <div style="border: 1px solid var(--bb-gray-dark); border-radius: 4px; padding: 6px 8px; font-size: 8px; color: var(--text-light);">No purchaser</div>
+          </div>
+          <div style="text-align: left; width: 100%; margin-bottom: 6px;">
+            <div style="font-size: 10px; font-weight: 600; color: var(--text-dark); margin-bottom: 3px;">Order Details</div>
+            <div style="font-size: 8px; color: var(--text-light); margin-bottom: 2px;">PO Number</div>
+            <div style="border: 1px solid var(--bb-gray-dark); border-radius: 4px; padding: 6px 8px; font-size: 8px; color: var(--text-light);">Optional</div>
+          </div>
+
+          <div style="width: 100%; background: var(--bb-gray); border-radius: 6px; padding: 8px; text-align: left; margin-top: 6px;">
+            <div style="font-size: 9px; font-weight: 700; color: var(--text-dark); margin-bottom: 4px;">Order Summary</div>
+            <div style="display: flex; justify-content: space-between; font-size: 8px; color: var(--text-body); margin-bottom: 2px;"><span>PA115 &times;1</span><span>&pound;437.39</span></div>
+            <div style="display: flex; justify-content: space-between; font-size: 8px; color: var(--text-body); margin-bottom: 4px;"><span>PA520 &times;1</span><span>&pound;3.46</span></div>
+            <div style="border-top: 1px solid var(--bb-gray-dark); padding-top: 4px; margin-top: 4px;">
+              <div style="display: flex; justify-content: space-between; font-size: 8px; color: var(--text-body);"><span>Subtotal</span><span>&pound;440.85</span></div>
+              <div style="display: flex; justify-content: space-between; font-size: 8px; color: var(--text-body);"><span>VAT (20%)</span><span>&pound;88.17</span></div>
+              <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; color: var(--bb-blue); margin-top: 4px;"><span>Total</span><span>&pound;529.02</span></div>
+            </div>
+          </div>
+          <div style="background: var(--bb-blue); color: #fff; font-size: 10px; font-weight: 600; padding: 8px 0; width: 100%; text-align: center; border-radius: 6px; margin-top: 8px;">Submit Order</div>
+        </div>
+      </div>
+      <p class="screenshot-caption">Complete checkout flow</p>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>onesignanddigital.com</span>
+    <span>5</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 6: CUSTOM SIGN BUILDER                                   -->
+<!-- ============================================================ -->
+<div class="page inner-page">
+  <div class="page-header">
+    <div class="onesign-small">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" height="24">
+        <text x="0" y="34" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800" fill="var(--bb-navy)">
+          <tspan fill="var(--bb-blue)" font-size="38">O</tspan>nesign
+        </text>
+      </svg>
+    </div>
+    <div class="page-title-right">Case Study &mdash; Balfour Beatty Signage Portal</div>
+  </div>
+
+  <div class="section-number">05</div>
+
+  <h2>Custom Sign Builder</h2>
+
+  <p class="body-text" style="max-width: 100%;">
+    For bespoke requirements, users specify sign type, shape, size, material, and text. A live preview renders the sign
+    in real time. Custom signs are submitted as quote requests &mdash; the team reviews and confirms pricing before
+    manufacture.
+  </p>
+
+  <div class="screenshots-row">
+    <!-- Sign specification form mockup -->
+    <div>
+      <div class="phone-mockup">
+        <div class="phone-mockup-inner" style="min-height: 380px; padding: 12px; background: #fff; align-items: stretch; justify-content: flex-start;">
+          <div class="mock-header">
+            <div class="bb-dot" style="border-radius: 3px; width: 18px; height: 18px;"></div>
+            <span class="bb-text" style="font-size: 9px;">Balfour Beatty</span>
+            <span style="font-size: 8px; color: var(--bb-blue); font-weight: 600; margin-left: auto;">&pound;440.85</span>
+          </div>
+          <div style="text-align: left; width: 100%; padding: 2px 0 6px;">
+            <div style="font-size: 7px; color: var(--text-light);">All Categories &nbsp; Custom Signs &nbsp; <strong style="color: var(--text-dark);">Request Custom Sign</strong></div>
+          </div>
+          <div style="background: var(--bb-gray); border-radius: 8px; padding: 12px; text-align: left; width: 100%; margin-bottom: 8px;">
+            <div style="font-size: 7px; color: var(--bb-blue); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 4px;">&#9998; Custom Design</div>
+            <div style="font-size: 13px; font-weight: 700; color: var(--bb-navy);">Request a Custom Sign</div>
+            <div style="font-size: 8px; color: var(--text-light); margin-top: 3px;">Tell us what you need and we'll produce it to your specification. Pricing will be confirmed after review.</div>
+          </div>
+          <div style="text-align: left; width: 100%;">
+            <div style="font-size: 9px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; border-bottom: 1px solid var(--bb-gray-dark); padding-bottom: 4px;">Sign Specification</div>
+            <div style="margin-bottom: 6px;">
+              <div style="font-size: 8px; color: var(--text-body); margin-bottom: 2px;">Sign Type *</div>
+              <div style="border: 1px solid var(--bb-gray-dark); border-radius: 4px; padding: 5px 8px; font-size: 8px; color: var(--text-dark);">Warning</div>
+            </div>
+            <div style="margin-bottom: 6px;">
+              <div style="font-size: 8px; color: var(--text-body); margin-bottom: 2px;">Shape *</div>
+              <div style="display: flex; gap: 4px;">
+                <div style="width: 32px; height: 32px; background: var(--bb-blue); border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                  <div style="width: 16px; height: 12px; background: rgba(255,255,255,0.8); border-radius: 1px;"></div>
+                </div>
+                <div style="width: 32px; height: 32px; background: var(--bb-gray); border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                  <div style="width: 14px; height: 14px; background: var(--bb-gray-dark); border-radius: 1px;"></div>
+                </div>
+                <div style="width: 32px; height: 32px; background: var(--bb-gray); border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                  <div style="width: 14px; height: 14px; background: var(--bb-gray-dark); border-radius: 50%;"></div>
+                </div>
+                <div style="width: 32px; height: 32px; background: var(--bb-gray); border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                  <div style="width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 12px solid var(--bb-gray-dark);"></div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size: 8px; color: var(--text-body); margin-bottom: 2px;">Sign Text *</div>
+              <div style="border: 1px solid var(--bb-gray-dark); border-radius: 4px; padding: 5px 8px; font-size: 8px; color: var(--text-light); min-height: 36px;">Enter the text you want displayed on your sign...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="screenshot-caption">Sign specification form</p>
+    </div>
+
+    <!-- Live preview mockup -->
+    <div>
+      <div class="phone-mockup">
+        <div class="phone-mockup-inner" style="min-height: 380px; padding: 12px; background: #fff; align-items: stretch; justify-content: flex-start;">
+          <div style="text-align: left; width: 100%;">
+            <div style="font-size: 10px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px;">Size &amp; Material</div>
+            <div style="margin-bottom: 6px;">
+              <div style="font-size: 8px; color: var(--text-body); margin-bottom: 2px;">Size *</div>
+              <div style="border: 1px solid var(--bb-gray-dark); border-radius: 4px; padding: 5px 8px; font-size: 8px; color: var(--text-dark); display: flex; justify-content: space-between;"><span>400 &times; 600mm</span><span style="color: var(--text-light);">&#9662;</span></div>
+            </div>
+            <div style="margin-bottom: 6px;">
+              <div style="font-size: 8px; color: var(--text-body); margin-bottom: 2px;">Material *</div>
+              <div style="border: 1px solid var(--bb-gray-dark); border-radius: 4px; padding: 5px 8px; font-size: 8px; color: var(--text-dark); display: flex; justify-content: space-between;"><span>4mm Correx</span><span style="color: var(--text-light);">&#9662;</span></div>
+            </div>
+            <div style="margin-bottom: 10px;">
+              <div style="font-size: 8px; color: var(--text-body); margin-bottom: 2px;">Quantity *</div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 24px; height: 24px; border: 1px solid var(--bb-gray-dark); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text-light);">&minus;</div>
+                <div style="font-size: 12px; font-weight: 600;">1</div>
+                <div style="width: 24px; height: 24px; border: 1px solid var(--bb-gray-dark); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text-light);">+</div>
+              </div>
+            </div>
+
+            <div style="border-top: 1px solid var(--bb-gray-dark); padding-top: 8px; margin-bottom: 6px;">
+              <div style="font-size: 10px; font-weight: 600; color: var(--text-dark); margin-bottom: 4px;">Additional Notes</div>
+              <div style="border: 1px solid var(--bb-gray-dark); border-radius: 4px; padding: 6px 8px; font-size: 8px; color: var(--text-light); min-height: 40px;">Any extra requirements, colour preferences, or design notes...</div>
+            </div>
+
+            <div style="border-top: 1px solid var(--bb-gray-dark); padding-top: 8px; margin-top: 10px;">
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--bb-blue);"></div>
+                <div style="font-size: 10px; font-weight: 600; color: var(--text-dark);">Preview</div>
+              </div>
+              <div style="width: 100%; height: 100px; background: linear-gradient(135deg, #fff5f5, #ffe0e0); border: 2px solid #e0c0c0; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px;">
+                <div style="font-size: 7px; color: #c00; font-weight: 600; display: flex; align-items: center; gap: 3px; margin-bottom: 4px;">&#9940; PROHIBITION</div>
+                <div style="font-size: 9px; font-weight: 700; color: #333; text-align: center; line-height: 1.3;">Caution:<br>Site entrance<br>ahead</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="screenshot-caption">Live preview with size &amp; material options</p>
+    </div>
+  </div>
+
+  <p class="trust-note">Screenshots shown from the live Persimmon Homes portal &mdash; your Balfour Beatty portal is identically featured, fully branded to your identity.</p>
+
+  <div class="page-footer">
+    <span>onesignanddigital.com</span>
+    <span>6</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 7: VISIBILITY & CONTROL                                  -->
+<!-- ============================================================ -->
+<div class="page inner-page">
+  <div class="page-header">
+    <div class="onesign-small">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" height="24">
+        <text x="0" y="34" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800" fill="var(--bb-navy)">
+          <tspan fill="var(--bb-blue)" font-size="38">O</tspan>nesign
+        </text>
+      </svg>
+    </div>
+    <div class="page-title-right">Case Study &mdash; Balfour Beatty Signage Portal</div>
+  </div>
+
+  <div class="section-number">06</div>
+
+  <h2>Visibility &amp; Control</h2>
+
+  <p class="body-text" style="max-width: 100%;">
+    Both site managers and the production team get complete order visibility. Users track progress without chasing
+    updates. The admin dashboard gives the production team a single view of all orders across the estate.
+  </p>
+
+  <div class="screenshots-row">
+    <!-- Order tracking mockup -->
+    <div>
+      <div class="phone-mockup">
+        <div class="phone-mockup-inner" style="min-height: 380px; padding: 12px; background: #fff; align-items: stretch; justify-content: flex-start;">
+          <div class="mock-header">
+            <div class="bb-dot" style="border-radius: 3px; width: 18px; height: 18px;"></div>
+            <span class="bb-text" style="font-size: 9px;">Balfour Beatty</span>
+            <span style="font-size: 8px; color: var(--bb-blue); font-weight: 600; margin-left: auto;">&pound;440.85</span>
+          </div>
+          <div style="text-align: left; width: 100%; padding: 2px 0 8px;">
+            <div style="font-size: 16px; font-weight: 800; color: var(--bb-navy);">Your Orders</div>
+            <div style="font-size: 8px; color: var(--text-light);">2 orders placed</div>
+          </div>
+          <div style="text-align: left; width: 100%; margin-bottom: 8px;">
+            <div style="font-size: 8px; color: var(--text-light); margin-bottom: 4px;">Ordered By</div>
+            <div style="display: flex; gap: 6px;">
+              <div style="display: flex; align-items: center; gap: 4px; background: var(--bb-gray); border-radius: 12px; padding: 3px 8px;">
+                <div style="width: 16px; height: 16px; border-radius: 50%; background: var(--bb-blue); color: #fff; font-size: 7px; display: flex; align-items: center; justify-content: center; font-weight: 600;">G</div>
+                <span style="font-size: 8px; font-weight: 500;">Gavin <span style="color: var(--text-light);">1</span></span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 4px; background: var(--bb-gray); border-radius: 12px; padding: 3px 8px;">
+                <div style="width: 16px; height: 16px; border-radius: 50%; background: var(--bb-navy); color: #fff; font-size: 7px; display: flex; align-items: center; justify-content: center; font-weight: 600;">JN</div>
+                <span style="font-size: 8px; font-weight: 500;">John Nutton <span style="color: var(--text-light);">1</span></span>
+              </div>
+            </div>
+          </div>
+          <div style="text-align: left; width: 100%; margin-bottom: 6px;">
+            <div style="font-size: 8px; color: var(--text-light); margin-bottom: 4px;">Your Sites</div>
+            <div style="background: var(--bb-gray); border-radius: 6px; padding: 8px; margin-bottom: 4px; border-left: 3px solid var(--bb-blue);">
+              <div style="font-size: 10px; font-weight: 600; color: var(--text-dark);">Riverside Development Phase 3</div>
+              <div style="font-size: 7px; color: var(--text-light);">Balfour Beatty, Station Rd, Wallsend NE28 9FE</div>
+              <div style="font-size: 7px; color: var(--bb-gold); font-weight: 600; margin-top: 2px;">1 Awaiting PO</div>
+            </div>
+            <div style="background: var(--bb-gray); border-radius: 6px; padding: 8px; border-left: 3px solid var(--bb-blue);">
+              <div style="font-size: 10px; font-weight: 600; color: var(--text-dark);">The Maples</div>
+              <div style="font-size: 7px; color: var(--text-light);">Primrose Lane, Newcastle Upon Tyne, NE13 9ET</div>
+              <div style="font-size: 7px; color: var(--bb-blue); font-weight: 600; margin-top: 2px;">1 New</div>
+            </div>
+          </div>
+          <div style="border: 1px solid var(--bb-gray-dark); border-radius: 4px; padding: 5px 8px; font-size: 8px; color: var(--text-light); width: 100%; margin-top: 4px; display: flex; align-items: center; gap: 4px;">
+            <span style="font-size: 10px;">&#128269;</span> Search by order number, name or site...
+          </div>
+          <div style="display: flex; gap: 4px; width: 100%; margin-top: 6px; flex-wrap: wrap;">
+            <div style="background: var(--bb-navy); color: #fff; font-size: 7px; padding: 3px 8px; border-radius: 12px; font-weight: 600;">All</div>
+            <div style="background: var(--bb-gray); font-size: 7px; padding: 3px 8px; border-radius: 12px; color: var(--text-body);">New (1)</div>
+            <div style="background: var(--bb-gray); font-size: 7px; padding: 3px 8px; border-radius: 12px; color: var(--text-body);">Awaiting PO (1)</div>
+            <div style="background: var(--bb-gray); font-size: 7px; padding: 3px 8px; border-radius: 12px; color: var(--text-body);">In Pr</div>
+          </div>
+        </div>
+      </div>
+      <p class="screenshot-caption">Order tracking with filters and status</p>
+    </div>
+
+    <!-- Admin dashboard mockup -->
+    <div>
+      <div class="phone-mockup">
+        <div class="phone-mockup-inner" style="min-height: 380px; padding: 12px; background: #fff; align-items: stretch; justify-content: flex-start;">
+          <div class="mock-header">
+            <div class="bb-dot" style="border-radius: 3px; width: 18px; height: 18px;"></div>
+            <span class="bb-text" style="font-size: 9px;">Balfour Beatty</span>
+            <span style="font-size: 8px; color: var(--bb-blue); font-weight: 600; margin-left: auto;">&pound;440.85</span>
+          </div>
+          <div style="text-align: left; width: 100%; padding: 2px 0 4px; display: flex; justify-content: space-between; align-items: baseline;">
+            <div>
+              <div style="font-size: 16px; font-weight: 800; color: var(--bb-navy);">Admin Dashboard</div>
+              <div style="font-size: 8px; color: var(--text-light);">2 orders &middot; 1 suggestion</div>
+            </div>
+            <div style="font-size: 8px; color: var(--bb-blue);">&lsaquo; Back to shop</div>
+          </div>
+          <div style="display: flex; gap: 4px; width: 100%; margin: 6px 0;">
+            <div style="flex: 1; text-align: center; font-size: 8px; font-weight: 600; padding: 5px 0; border: 1px solid var(--bb-gray-dark); border-radius: 4px; color: var(--text-dark);">Orders</div>
+            <div style="flex: 1; text-align: center; font-size: 8px; padding: 5px 0; border: 1px solid var(--bb-gray-dark); border-radius: 4px; color: var(--text-light);">Suggestions</div>
+          </div>
+          <div style="text-align: left; width: 100%; margin-bottom: 6px;">
+            <div style="font-size: 8px; color: var(--text-light); margin-bottom: 4px;">Ordered By</div>
+            <div style="display: flex; gap: 6px;">
+              <div style="display: flex; align-items: center; gap: 4px; background: var(--bb-gray); border-radius: 12px; padding: 3px 8px;">
+                <div style="width: 16px; height: 16px; border-radius: 50%; background: var(--bb-blue); color: #fff; font-size: 7px; display: flex; align-items: center; justify-content: center; font-weight: 600;">G</div>
+                <span style="font-size: 8px; font-weight: 500;">Gavin <span style="color: var(--text-light);">1</span></span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 4px; background: var(--bb-gray); border-radius: 12px; padding: 3px 8px;">
+                <div style="width: 16px; height: 16px; border-radius: 50%; background: var(--bb-navy); color: #fff; font-size: 7px; display: flex; align-items: center; justify-content: center; font-weight: 600;">JN</div>
+                <span style="font-size: 8px; font-weight: 500;">John Nutton <span style="color: var(--text-light);">1</span></span>
+              </div>
+            </div>
+          </div>
+          <div style="text-align: left; width: 100%; margin-bottom: 4px;">
+            <div style="font-size: 8px; color: var(--text-light); margin-bottom: 4px;">Sites</div>
+            <div style="background: var(--bb-gray); border-radius: 6px; padding: 8px; margin-bottom: 4px; border-left: 3px solid var(--bb-blue);">
+              <div style="font-size: 9px; font-weight: 600; color: var(--text-dark);">Riverside Development Phase 3</div>
+              <div style="font-size: 7px; color: var(--text-light);">Balfour Beatty, Station Rd, Wallsend NE28 9FE</div>
+              <div style="font-size: 7px; color: var(--bb-gold); font-weight: 600; margin-top: 2px;">1 Awaiting PO</div>
+            </div>
+            <div style="background: var(--bb-gray); border-radius: 6px; padding: 8px; border-left: 3px solid var(--bb-blue);">
+              <div style="font-size: 9px; font-weight: 600; color: var(--text-dark);">The Maples</div>
+              <div style="font-size: 7px; color: var(--text-light);">Primrose Lane, Newcastle Upon Tyne, NE13 9ET</div>
+              <div style="font-size: 7px; color: var(--bb-blue); font-weight: 600; margin-top: 2px;">1 New</div>
+            </div>
+          </div>
+          <div style="border: 1px solid var(--bb-gray-dark); border-radius: 4px; padding: 5px 8px; font-size: 8px; color: var(--text-light); width: 100%; margin-top: 4px; display: flex; align-items: center; gap: 4px;">
+            <span style="font-size: 10px;">&#128269;</span> Search by order number, name or site...
+          </div>
+          <div style="display: flex; gap: 4px; width: 100%; margin-top: 6px; flex-wrap: wrap;">
+            <div style="background: var(--bb-navy); color: #fff; font-size: 7px; padding: 3px 8px; border-radius: 12px; font-weight: 600;">All</div>
+            <div style="background: var(--bb-gray); font-size: 7px; padding: 3px 8px; border-radius: 12px; color: var(--text-body);">New (1)</div>
+            <div style="background: var(--bb-gray); font-size: 7px; padding: 3px 8px; border-radius: 12px; color: var(--text-body);">Awaiting PO (1)</div>
+            <div style="background: var(--bb-gray); font-size: 7px; padding: 3px 8px; border-radius: 12px; color: var(--text-body);">In Pr</div>
+          </div>
+        </div>
+      </div>
+      <p class="screenshot-caption">Admin dashboard for order management</p>
+    </div>
+  </div>
+
+  <p class="trust-note">Screenshots shown from the live Persimmon Homes portal &mdash; your Balfour Beatty portal is identically featured, fully branded to your identity.</p>
+
+  <div class="page-footer">
+    <span>onesignanddigital.com</span>
+    <span>7</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 8: THE RESULTS + GET IN TOUCH                            -->
+<!-- ============================================================ -->
+<div class="page inner-page">
+  <div class="page-header">
+    <div class="onesign-small">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" height="24">
+        <text x="0" y="34" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800" fill="var(--bb-navy)">
+          <tspan fill="var(--bb-blue)" font-size="38">O</tspan>nesign
+        </text>
+      </svg>
+    </div>
+    <div class="page-title-right">Case Study &mdash; Balfour Beatty Signage Portal</div>
+  </div>
+
+  <div class="section-number">07</div>
+
+  <div style="display: inline-block; background: var(--bb-navy); color: #fff; padding: 12px 24px; border-radius: 4px; margin-bottom: 20px;">
+    <h2 style="color: #fff; font-size: 36px; margin-bottom: 0;">The Results</h2>
+  </div>
+
+  <p class="body-text" style="max-width: 100%;">
+    By replacing manual processes with a structured digital workflow, the portal delivers measurable improvements
+    across procurement, operations, and brand management. These results are already proven with Persimmon Homes
+    and ready to deliver for Balfour Beatty.
+  </p>
+
+  <div class="results-grid">
+    <div class="result-card">
+      <h4>Faster Ordering</h4>
+      <p>Site managers browse and order in minutes, not days</p>
+    </div>
+    <div class="result-card">
+      <h4>Brand Consistency</h4>
+      <p>Every order uses approved, visually referenced products</p>
+    </div>
+    <div class="result-card">
+      <h4>Complete Visibility</h4>
+      <p>Full oversight of every order across every site</p>
+    </div>
+    <div class="result-card">
+      <h4>Structured Data</h4>
+      <p>Clean order data replaces ambiguous email requests</p>
+    </div>
+    <div class="result-card">
+      <h4>Reduced Admin</h4>
+      <p>No more manual reconciliation of spreadsheets</p>
+    </div>
+    <div class="result-card">
+      <h4>Scalable</h4>
+      <p>The same platform serves five sites or five hundred</p>
+    </div>
+  </div>
+
+  <div class="quote-block">
+    From site manager to delivered signage: one digital workflow replacing spreadsheets,
+    emails, and manual coordination.
+  </div>
+
+  <div class="cta-section">
+    <h2>Get in Touch</h2>
+    <p class="body-text">
+      If you'd like to explore how a digital procurement portal could simplify signage ordering across
+      your estate, we'd be happy to show you how it works.
+    </p>
+    <a class="email-link">mike@onesignanddigital.com</a>
+    <div class="contact-details">0191 487 6767 &bull; onesignanddigital.com</div>
+    <div class="company-line">Onesign and Digital &mdash; D86 Princesway, Gateshead NE11 0TU</div>
+  </div>
+
+  <div class="page-footer">
+    <span>onesignanddigital.com</span>
+    <span>8</span>
+  </div>
+</div>
+
+</body>
+</html>

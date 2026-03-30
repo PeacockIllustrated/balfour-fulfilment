@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.cdnfonts.com/css/gilroy-bold" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+/* ═══ RESET & BASE ═══ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+@page { size: A4; margin: 0; }
+
+:root {
+  --navy: #002B49;
+  --navy-deep: #001A2E;
+  --accent: #005D99;
+  --accent-light: #1a7ab8;
+  --cream: #F8F6F2;
+  --white: #FFFFFF;
+  --dark: #1A1D21;
+  --mid: #4A5568;
+  --light: #94A3B8;
+  --border: #E2E8F0;
+  --green: #16a34a;
+  --amber: #d97706;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  color: var(--dark);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  font-size: 10.5pt;
+  line-height: 1.65;
+}
+
+/* ═══ PAGE LAYOUT ═══ */
+.page {
+  width: 210mm;
+  height: 297mm;
+  position: relative;
+  overflow: hidden;
+  page-break-after: always;
+}
+.page:last-child { page-break-after: auto; }
+
+/* ═══ TYPOGRAPHY ═══ */
+h1, h2, h3 { font-family: 'Gilroy-Bold', sans-serif; font-weight: 400; line-height: 1.15; letter-spacing: -0.02em; }
+
+/* ═══ PAGE HEADER ═══ */
+.pg-header {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14mm 22mm 0;
+  z-index: 10;
+}
+.pg-header .logo-sm { height: 7mm; }
+.pg-header .meta { font-size: 7.5pt; color: var(--light); letter-spacing: 0.5px; }
+.pg-header .accent-line {
+  position: absolute;
+  bottom: -4mm;
+  left: 22mm;
+  right: 22mm;
+  height: 1.5px;
+  background: linear-gradient(90deg, var(--accent), transparent 80%);
+}
+
+/* ═══ PAGE FOOTER ═══ */
+.pg-footer {
+  position: absolute;
+  bottom: 10mm;
+  left: 22mm;
+  right: 22mm;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 7pt;
+  color: var(--light);
+  z-index: 10;
+}
+.pg-footer::before {
+  content: '';
+  position: absolute;
+  top: -4mm;
+  left: 0;
+  right: 0;
+  height: 0.5px;
+  background: var(--border);
+}
+
+/* ═══ CONTENT AREA ═══ */
+.content {
+  padding: 28mm 22mm 20mm;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ═══ SECTION NUMBER ═══ */
+.section-num {
+  font-family: 'Gilroy-Bold', sans-serif;
+  font-size: 48pt;
+  color: var(--accent);
+  opacity: 0.15;
+  position: absolute;
+  top: 24mm;
+  right: 22mm;
+  line-height: 1;
+  z-index: 0;
+}
+
+/* ═══ CALLOUT BOX ═══ */
+.callout {
+  background: var(--cream);
+  border-left: 3px solid var(--accent);
+  padding: 5mm 6mm;
+  border-radius: 0 6px 6px 0;
+  margin: 4mm 0;
+}
+.callout p {
+  font-size: 10pt;
+  color: var(--navy);
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+/* ═══ NAVY BANNER ═══ */
+.banner {
+  background: var(--navy);
+  color: white;
+  padding: 4mm 6mm;
+  border-radius: 4px;
+  margin-bottom: 4mm;
+}
+.banner h2 { font-size: 16pt; color: white; }
+
+/* ═══ BULLET LIST ═══ */
+.bullets { list-style: none; padding: 0; margin: 3mm 0; }
+.bullets li {
+  padding: 1.5mm 0 1.5mm 5mm;
+  position: relative;
+  font-size: 10pt;
+  color: var(--mid);
+}
+.bullets li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* ═══ BENEFITS TABLE ═══ */
+.benefits {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3mm;
+}
+.benefit {
+  padding: 4mm 5mm;
+  border-bottom: 1px solid var(--border);
+}
+.benefit-title {
+  font-family: 'Gilroy-Bold', sans-serif;
+  font-size: 12pt;
+  color: var(--navy);
+  margin-bottom: 1mm;
+}
+.benefit-desc {
+  font-size: 8.5pt;
+  color: var(--mid);
+  line-height: 1.5;
+}
+
+/* ═══ TECH TABLE ═══ */
+.tech-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 3mm 0;
+}
+.tech-table th {
+  font-family: 'Gilroy-Bold', sans-serif;
+  font-size: 8pt;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent);
+  text-align: left;
+  padding: 2mm 3mm;
+  border-bottom: 2px solid var(--accent);
+}
+.tech-table td {
+  font-size: 9.5pt;
+  padding: 2.5mm 3mm;
+  color: var(--mid);
+  border-bottom: 1px solid var(--border);
+}
+.tech-table td:first-child {
+  color: var(--navy);
+  font-weight: 600;
+  width: 38%;
+}
+
+/* ═══ FLOW DIAGRAM ═══ */
+.flow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 4mm 0;
+}
+.flow-step {
+  flex: 1;
+  text-align: center;
+  padding: 3mm 2mm;
+  background: var(--cream);
+  border-radius: 6px;
+  position: relative;
+}
+.flow-step-active {
+  background: var(--navy);
+  color: white;
+}
+.flow-step-active .flow-label { color: white; }
+.flow-step-active .flow-desc { color: rgba(255,255,255,0.6); }
+.flow-arrow {
+  font-size: 14pt;
+  color: var(--accent);
+  padding: 0 1mm;
+  flex-shrink: 0;
+}
+.flow-label {
+  font-family: 'Gilroy-Bold', sans-serif;
+  font-size: 9pt;
+  color: var(--navy);
+  margin-bottom: 1mm;
+}
+.flow-desc {
+  font-size: 7pt;
+  color: var(--light);
+  line-height: 1.4;
+}
+
+/* ═══ STAT BLOCK ═══ */
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 4mm;
+  margin: 4mm 0;
+}
+.stat {
+  text-align: center;
+  padding: 5mm 3mm;
+  background: var(--cream);
+  border-radius: 6px;
+}
+.stat-number {
+  font-family: 'Gilroy-Bold', sans-serif;
+  font-size: 28pt;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 1mm;
+}
+.stat-label {
+  font-size: 8pt;
+  color: var(--mid);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ═══ FEATURE CARD ═══ */
+.feature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4mm;
+}
+.feature-card {
+  padding: 5mm;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+}
+.feature-card-navy {
+  background: var(--navy);
+  border-color: var(--navy);
+}
+.feature-card-navy .feature-card-title { color: white; }
+.feature-card-navy .feature-card-desc { color: rgba(255,255,255,0.6); }
+.feature-card-icon {
+  font-family: 'Gilroy-Bold', sans-serif;
+  font-size: 16pt;
+  margin-bottom: 2mm;
+  color: var(--accent);
+  line-height: 1;
+}
+.feature-card-navy .feature-card-icon { color: rgba(255,255,255,0.5); }
+.feature-card-title {
+  font-family: 'Gilroy-Bold', sans-serif;
+  font-size: 11pt;
+  color: var(--navy);
+  margin-bottom: 1.5mm;
+}
+.feature-card-desc {
+  font-size: 8pt;
+  color: var(--mid);
+  line-height: 1.5;
+}
+
+/* ═══ STATUS PILL ═══ */
+.pill {
+  display: inline-block;
+  padding: 1mm 3mm;
+  border-radius: 3px;
+  font-size: 7.5pt;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.pill-blue { background: #dbeafe; color: #1e40af; }
+.pill-amber { background: #fef3c7; color: #92400e; }
+.pill-green { background: #dcfce7; color: #166534; }
+.pill-red { background: #fee2e2; color: #991b1b; }
+
+/* ═══ TWO COL ═══ */
+.two-col {
+  display: flex;
+  gap: 6mm;
+}
+.two-col > * { flex: 1; }
+
+/* ═══ COVER ═══ */
+.cover {
+  background: linear-gradient(165deg, var(--navy-deep) 0%, var(--navy) 50%, #003D5B 100%);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 28mm 28mm 20mm;
+  position: relative;
+}
+.cover::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(0,93,153,0.06) 0%, transparent 50%);
+}
+.cover::after {
+  content: '';
+  position: absolute;
+  right: 18%;
+  top: 12%;
+  bottom: 12%;
+  width: 1px;
+  background: linear-gradient(180deg, transparent 0%, rgba(0,93,153,0.25) 30%, rgba(0,93,153,0.25) 70%, transparent 100%);
+}
+.cover .tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4mm;
+}
+.cover .tag-line { width: 20px; height: 1px; background: var(--accent); }
+.cover .tag-text {
+  font-size: 8pt;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+}
+.cover h1 {
+  font-size: 38pt;
+  line-height: 1.08;
+  margin-bottom: 6mm;
+  max-width: 75%;
+  position: relative;
+  z-index: 1;
+}
+.cover .subtitle {
+  font-size: 11pt;
+  color: rgba(255,255,255,0.5);
+  font-style: italic;
+  max-width: 60%;
+  line-height: 1.6;
+  margin-bottom: auto;
+}
+.cover .client {
+  font-size: 8pt;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 6mm;
+}
+.cover .bottom-bar {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 5mm;
+}
+.cover .bottom-bar p {
+  font-size: 8pt;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.8;
+}
+
+/* ═══ CTA SECTION ═══ */
+.cta-section {
+  background: var(--navy);
+  border-radius: 8px;
+  padding: 10mm 12mm;
+  text-align: center;
+  color: white;
+  margin-top: auto;
+}
+.cta-section h2 { color: white; font-size: 22pt; margin-bottom: 3mm; }
+.cta-section .cta-body { font-size: 9pt; color: rgba(255,255,255,0.6); margin-bottom: 5mm; line-height: 1.6; }
+.cta-section .cta-email { font-size: 14pt; color: var(--accent); font-weight: 600; margin-bottom: 2mm; }
+.cta-section .cta-details { font-size: 9pt; color: rgba(255,255,255,0.5); }
+
+/* ═══ UTILITY ═══ */
+.mb-2 { margin-bottom: 2mm; }
+.mb-3 { margin-bottom: 3mm; }
+.mb-4 { margin-bottom: 4mm; }
+.mb-5 { margin-bottom: 5mm; }
+.mb-6 { margin-bottom: 6mm; }
+.mb-8 { margin-bottom: 8mm; }
+.mt-auto { margin-top: auto; }
+.text-mid { color: var(--mid); }
+.text-light { color: var(--light); }
+.text-navy { color: var(--navy); }
+.text-accent { color: var(--accent); }
+.fs-sm { font-size: 9pt; }
+.fs-xs { font-size: 8pt; }
+.fw-600 { font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 1: COVER
+     ═══════════════════════════════════════════════ -->
+<div class="page cover">
+  <img src="screenshots/onesign-logo-white.png" style="width: 160px; margin-bottom: 18mm; position: relative; z-index: 1; opacity: 0.9;">
+
+  <div class="tag" style="position: relative; z-index: 1;">
+    <span class="tag-line"></span>
+    <span class="tag-text">Platform Overview</span>
+  </div>
+
+  <h1>Balfour Beatty<br>Signage Portal</h1>
+
+  <p class="subtitle">A complete technical and functional overview of the digital signage procurement platform built for Balfour Beatty</p>
+
+  <div class="client">Application Overview &mdash; March 2026</div>
+
+  <div style="position: relative; z-index: 1; margin-bottom: auto;"></div>
+
+  <div class="bottom-bar">
+    <p><strong style="color: rgba(255,255,255,0.7);">Onesign and Digital</strong></p>
+    <p>D86 Princesway, Gateshead NE11 0TU</p>
+    <p>onesignanddigital.com &nbsp;&bull;&nbsp; 0191 487 6767</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 2: PLATFORM AT A GLANCE
+     ═══════════════════════════════════════════════ -->
+<div class="page" style="background: var(--white);">
+  <div class="pg-header">
+    <img class="logo-sm" src="screenshots/onesign-logo.png">
+    <span class="meta">Balfour Beatty Signage Portal &mdash; Platform Overview</span>
+    <div class="accent-line"></div>
+  </div>
+  <span class="section-num">01</span>
+  <div class="content">
+    <h1 style="font-size: 28pt; color: var(--navy); margin-bottom: 2mm;">Platform at a Glance</h1>
+    <p class="text-mid fs-sm mb-5">A self-service web portal where Balfour Beatty site teams browse, customise, and order branded construction signage. Replaces spreadsheets, emails, and manual coordination with a single digital workflow.</p>
+
+    <div class="stats mb-5">
+      <div class="stat">
+        <div class="stat-number">125</div>
+        <div class="stat-label">Products</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">27</div>
+        <div class="stat-label">Categories</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">324</div>
+        <div class="stat-label">Size &amp; Material Variants</div>
+      </div>
+    </div>
+
+    <div class="banner"><h2>Technology Stack</h2></div>
+
+    <div class="two-col">
+      <div>
+        <table class="tech-table">
+          <thead><tr><th>Component</th><th>Technology</th></tr></thead>
+          <tbody>
+            <tr><td>Frontend</td><td>Next.js 16, React 19</td></tr>
+            <tr><td>Language</td><td>TypeScript 5</td></tr>
+            <tr><td>Styling</td><td>Tailwind CSS 4</td></tr>
+            <tr><td>Database</td><td>Supabase (PostgreSQL)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <table class="tech-table">
+          <thead><tr><th>Component</th><th>Technology</th></tr></thead>
+          <tbody>
+            <tr><td>PDF Generation</td><td>React PDF Renderer</td></tr>
+            <tr><td>Automation</td><td>Make.com Webhooks</td></tr>
+            <tr><td>Hosting</td><td>Vercel (Auto-deploy)</td></tr>
+            <tr><td>Image Pipeline</td><td>Python, OpenCV</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top: 5mm;">
+      <p>Fully branded for Balfour Beatty &mdash; navy and blue colour scheme, BB logos across all pages, emails, and generated documents. Every product image carries the Balfour Beatty emblem.</p>
+    </div>
+
+    <h2 style="font-size: 16pt; color: var(--navy); margin-top: 5mm; margin-bottom: 3mm;">Architecture</h2>
+    <p class="text-mid fs-sm mb-3">The application is a monolithic Next.js app deployed to Vercel with server-side API routes connecting to Supabase PostgreSQL. Authentication is password-based with separate shop and admin tiers. External workflows are triggered via Make.com webhooks for email delivery and fulfilment system integration.</p>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-label">Browser</div>
+        <div class="flow-desc">Next.js frontend<br>React 19</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step flow-step-active">
+        <div class="flow-label">API Routes</div>
+        <div class="flow-desc">Server-side<br>TypeScript</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-label">Supabase</div>
+        <div class="flow-desc">PostgreSQL<br>Row-level security</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-label">Make.com</div>
+        <div class="flow-desc">Webhooks<br>Email &amp; routing</div>
+      </div>
+    </div>
+  </div>
+  <div class="pg-footer">
+    <span>onesignanddigital.com</span>
+    <span>2</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 3: USER JOURNEY
+     ═══════════════════════════════════════════════ -->
+<div class="page" style="background: var(--cream);">
+  <div class="pg-header">
+    <img class="logo-sm" src="screenshots/onesign-logo.png">
+    <span class="meta">Balfour Beatty Signage Portal &mdash; Platform Overview</span>
+    <div class="accent-line"></div>
+  </div>
+  <span class="section-num">02</span>
+  <div class="content">
+    <h1 style="font-size: 28pt; color: var(--navy); margin-bottom: 2mm;">User Journey</h1>
+    <p class="text-mid fs-sm mb-5">From login to delivered signage &mdash; a streamlined digital workflow that replaces phone calls, spreadsheets, and email chains.</p>
+
+    <div class="flow mb-6">
+      <div class="flow-step">
+        <div class="flow-label">Login</div>
+        <div class="flow-desc">Secure<br>password</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-label">Browse</div>
+        <div class="flow-desc">Categories<br>&amp; search</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-label">Select</div>
+        <div class="flow-desc">Size, material<br>&amp; quantity</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-label">Basket</div>
+        <div class="flow-desc">Review<br>&amp; adjust</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step flow-step-active">
+        <div class="flow-label">Checkout</div>
+        <div class="flow-desc">Contact, site<br>&amp; purchaser</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-label">Confirm</div>
+        <div class="flow-desc">Order ref<br>&amp; email</div>
+      </div>
+    </div>
+
+    <div class="two-col mb-5">
+      <div>
+        <h2 style="font-size: 16pt; color: var(--navy); margin-bottom: 3mm;">Browsing &amp; Selection</h2>
+        <ul class="bullets">
+          <li>27 signage categories with visual product cards</li>
+          <li>Full-text search across codes, names, and descriptions</li>
+          <li>Product pages show all size and material variants</li>
+          <li>Clear pricing per variant with image preview</li>
+          <li>Products with custom fields capture site-specific data (site name, phone number, etc.)</li>
+        </ul>
+      </div>
+      <div>
+        <h2 style="font-size: 16pt; color: var(--navy); margin-bottom: 3mm;">Basket &amp; Checkout</h2>
+        <ul class="bullets">
+          <li>Basket with images, quantities, and VAT breakdown</li>
+          <li>Select or create a contact (name, email, phone)</li>
+          <li>Select or create a delivery site (name, address)</li>
+          <li>Assign a purchaser for PO approval</li>
+          <li>Attach PO number and special instructions</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="banner"><h2>Product Categories</h2></div>
+    <div style="column-count: 3; column-gap: 5mm; margin-top: 3mm;">
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Site Setup Pack</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Environmental Signs</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Site Entrance Signs</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Information Signs</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">P.P.E. Signs</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Hazard Signs</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Fire Signs</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Pedestrian Signs</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Security Signs</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Health Signs</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Site Marking</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Simple Safety Signs</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Working at Height</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Traffic Signs</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Parking Signs</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Roadworks Signs</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Freestanding Signs</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Display Boards</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Notice Boards</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Considerate Site Signs</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Posters</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Prestige Signs</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Hoarding Signs</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Finished Home Signs</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Custom Signs</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Extras &amp; Accessories</p>
+      <p class="fs-sm text-mid" style="margin-bottom: 1.5mm;">Other Signs</p>
+    </div>
+
+    <div class="callout" style="margin-top: 5mm;">
+      <p>Materials include Correx, Foamex, Zintec, Dibond, and Self-Adhesive Vinyl &mdash; ranging from small 100&times;150mm labels to full hoarding panels.</p>
+    </div>
+  </div>
+  <div class="pg-footer">
+    <span>onesignanddigital.com</span>
+    <span>3</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 4: CUSTOMISATION & SPECIAL ORDERS
+     ═══════════════════════════════════════════════ -->
+<div class="page" style="background: var(--white);">
+  <div class="pg-header">
+    <img class="logo-sm" src="screenshots/onesign-logo.png">
+    <span class="meta">Balfour Beatty Signage Portal &mdash; Platform Overview</span>
+    <div class="accent-line"></div>
+  </div>
+  <span class="section-num">03</span>
+  <div class="content">
+    <h1 style="font-size: 28pt; color: var(--navy); margin-bottom: 2mm;">Customisation Features</h1>
+    <p class="text-mid fs-sm mb-5">Beyond the standard catalogue, the portal supports fully bespoke signage and non-standard dimensions.</p>
+
+    <div class="feature-grid mb-5">
+      <div class="feature-card feature-card-navy">
+        <div class="feature-card-icon">//</div>
+        <div class="feature-card-title">Custom Sign Builder</div>
+        <div class="feature-card-desc">
+          Design bespoke signs from scratch. Choose sign type (warning, prohibition, mandatory, information, fire safety, directional, security, environmental), shape, material, and enter custom text. A live preview renders in real time. Submitted as a quote request.
+        </div>
+      </div>
+      <div class="feature-card feature-card-navy">
+        <div class="feature-card-icon">&lt;&gt;</div>
+        <div class="feature-card-title">Custom Sizing</div>
+        <div class="feature-card-desc">
+          Enter non-standard dimensions on any product. The system automatically matches to the nearest standard variant for instant pricing, or flags for a manual quote if no close match exists. Area tolerance matching within 150%.
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-icon">Aa</div>
+        <div class="feature-card-title">Custom Fields</div>
+        <div class="feature-card-desc">
+          Products that require site-specific data (site name, phone number, address, etc.) present dynamic input fields at the point of ordering. Values are captured in the order and carried through to fulfilment.
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-icon">&pound;</div>
+        <div class="feature-card-title">Pricing Logic</div>
+        <div class="feature-card-desc">
+          Standard items priced from catalogue. Custom signs submitted at &pound;0 pending quote. Custom sizes auto-matched to nearest variant price. VAT (20%) calculated server-side. Prices validated server-side to prevent tampering.
+        </div>
+      </div>
+    </div>
+
+    <div class="banner"><h2>Order Lifecycle</h2></div>
+
+    <div class="flow mb-4">
+      <div class="flow-step">
+        <div class="flow-label">New</div>
+        <div class="flow-desc">Order placed<br>email sent</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step" style="background: #fef3c7;">
+        <div class="flow-label">Awaiting PO</div>
+        <div class="flow-desc">Purchaser<br>approval</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step flow-step-active">
+        <div class="flow-label">In Progress</div>
+        <div class="flow-desc">Sent to<br>production</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step" style="background: #dcfce7;">
+        <div class="flow-label">Completed</div>
+        <div class="flow-desc">Delivered &amp;<br>documented</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <h3 style="font-size: 12pt; color: var(--navy); margin-bottom: 2mm;">Purchase Order Workflow</h3>
+        <ul class="bullets">
+          <li>Admin sends order to purchaser for PO approval</li>
+          <li>Purchaser receives branded email with token-protected upload link</li>
+          <li>PO document uploaded directly through the portal</li>
+          <li>Order status automatically updated on upload</li>
+          <li>Admin can download PO documents at any time</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="font-size: 12pt; color: var(--navy); margin-bottom: 2mm;">Document Generation</h3>
+        <ul class="bullets">
+          <li><strong>Quote PDF</strong> &mdash; full order breakdown with branding</li>
+          <li><strong>Order List PDF</strong> &mdash; product codes with artwork status</li>
+          <li><strong>Delivery Note PDF</strong> &mdash; branded shipping document</li>
+          <li>All PDFs generated server-side with React PDF</li>
+          <li>Delivery notes can also be uploaded as files</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="pg-footer">
+    <span>onesignanddigital.com</span>
+    <span>4</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 5: ADMIN & MANAGEMENT
+     ═══════════════════════════════════════════════ -->
+<div class="page" style="background: var(--cream);">
+  <div class="pg-header">
+    <img class="logo-sm" src="screenshots/onesign-logo.png">
+    <span class="meta">Balfour Beatty Signage Portal &mdash; Platform Overview</span>
+    <div class="accent-line"></div>
+  </div>
+  <span class="section-num">04</span>
+  <div class="content">
+    <h1 style="font-size: 28pt; color: var(--navy); margin-bottom: 2mm;">Admin &amp; Management</h1>
+    <p class="text-mid fs-sm mb-5">A dedicated dashboard gives the production team complete visibility and control over all orders across the entire estate.</p>
+
+    <div class="feature-grid mb-5">
+      <div class="feature-card">
+        <div class="feature-card-icon">#</div>
+        <div class="feature-card-title">Order Dashboard</div>
+        <div class="feature-card-desc">
+          View all orders with status badges. Filter by status, contact, or site. Search by order number, contact name, or site. Expand any order to see full item details with product images and pricing.
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-icon">&bull;&bull;&bull;</div>
+        <div class="feature-card-title">Status Management</div>
+        <div class="feature-card-desc">
+          Update order status directly from the dashboard. Statuses: <span class="pill pill-blue">New</span> <span class="pill pill-amber">Awaiting PO</span> <span class="pill pill-green">In Progress</span> <span class="pill pill-green">Completed</span> <span class="pill pill-red">Cancelled</span>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-icon">PDF</div>
+        <div class="feature-card-title">Document Actions</div>
+        <div class="feature-card-desc">
+          Generate and download Quote, Order List, and Delivery Note PDFs. Upload PO documents and delivery notes. All documents stored in the database and downloadable at any time.
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-icon">?!</div>
+        <div class="feature-card-title">User Feedback</div>
+        <div class="feature-card-desc">
+          A suggestions widget lets shop users submit feedback and sign requests. Admin reviews submissions with a status workflow: New &rarr; Noted &rarr; Done / Dismissed. Counter badges show unread items.
+        </div>
+      </div>
+    </div>
+
+    <div class="banner"><h2>Data Management</h2></div>
+
+    <p class="text-mid fs-sm mb-4">Reusable entities are managed via CRUD interfaces, eliminating repetitive data entry across orders.</p>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; margin-bottom: 5mm;">
+      <div style="padding: 5mm; background: white; border-radius: 6px; border: 1px solid var(--border);">
+        <h3 style="font-size: 11pt; color: var(--navy); margin-bottom: 2mm;">Contacts</h3>
+        <p class="fs-xs text-mid">Name, email, phone. Upserted by email. Select or create inline during checkout.</p>
+      </div>
+      <div style="padding: 5mm; background: white; border-radius: 6px; border: 1px solid var(--border);">
+        <h3 style="font-size: 11pt; color: var(--navy); margin-bottom: 2mm;">Sites</h3>
+        <p class="fs-xs text-mid">Site name, full address. Upserted by name. Reused across multiple orders.</p>
+      </div>
+      <div style="padding: 5mm; background: white; border-radius: 6px; border: 1px solid var(--border);">
+        <h3 style="font-size: 11pt; color: var(--navy); margin-bottom: 2mm;">Purchasers</h3>
+        <p class="fs-xs text-mid">Name, email. Assigned to orders for PO approval. Receives automated email with upload link.</p>
+      </div>
+    </div>
+
+    <div class="banner"><h2>Database Schema</h2></div>
+
+    <table class="tech-table" style="margin-top: 2mm;">
+      <thead><tr><th>Table</th><th>Purpose</th><th>Key Fields</th></tr></thead>
+      <tbody>
+        <tr><td>bal_orders</td><td>Order headers</td><td>order_number, status, contact/site/purchaser, PO &amp; DN docs, totals</td></tr>
+        <tr><td>bal_order_items</td><td>Line items</td><td>code, name, size, material, price, quantity, custom_data (JSONB)</td></tr>
+        <tr><td>bal_contacts</td><td>Reusable contacts</td><td>name, email, phone</td></tr>
+        <tr><td>bal_sites</td><td>Delivery sites</td><td>name, address</td></tr>
+        <tr><td>bal_purchasers</td><td>PO approvers</td><td>name, email</td></tr>
+        <tr><td>bal_suggestions</td><td>User feedback</td><td>name, message, status</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pg-footer">
+    <span>onesignanddigital.com</span>
+    <span>5</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 6: INTEGRATIONS & SECURITY
+     ═══════════════════════════════════════════════ -->
+<div class="page" style="background: var(--white);">
+  <div class="pg-header">
+    <img class="logo-sm" src="screenshots/onesign-logo.png">
+    <span class="meta">Balfour Beatty Signage Portal &mdash; Platform Overview</span>
+    <div class="accent-line"></div>
+  </div>
+  <span class="section-num">05</span>
+  <div class="content">
+    <h1 style="font-size: 28pt; color: var(--navy); margin-bottom: 2mm;">Integrations &amp; Security</h1>
+    <p class="text-mid fs-sm mb-5">The portal connects to external systems for email delivery, fulfilment routing, and automated workflows.</p>
+
+    <div class="two-col mb-5">
+      <div>
+        <div class="banner"><h2>Email &amp; Automation</h2></div>
+        <p class="text-mid fs-sm mb-3">All transactional emails are triggered via <strong>Make.com webhooks</strong>, providing a flexible automation layer between the portal and downstream systems.</p>
+        <ul class="bullets mb-4">
+          <li><strong>Order confirmation</strong> &mdash; sent to contact on submission</li>
+          <li><strong>Internal PO email</strong> &mdash; full order details to production team</li>
+          <li><strong>Purchaser notification</strong> &mdash; PO approval request with upload link</li>
+          <li>All emails are branded HTML with item tables, pricing, and images</li>
+          <li>Custom sign items colour-coded by type in emails</li>
+        </ul>
+
+        <h3 style="font-size: 12pt; color: var(--navy); margin-bottom: 2mm;">Fulfilment Integration</h3>
+        <p class="text-mid fs-sm">"Send to Nest" action fires a webhook to route the order into the production system with complete order data, item details, and PO references.</p>
+      </div>
+
+      <div>
+        <div class="banner"><h2>Security</h2></div>
+        <ul class="bullets mb-4">
+          <li>Password-based authentication (shop &amp; admin tiers)</li>
+          <li>HTTP-only secure cookies with 30-day expiry</li>
+          <li>Rate-limited login (5 attempts per minute per IP)</li>
+          <li>Server-side price recalculation (prevents client tampering)</li>
+          <li>Token-protected PO upload links (time-bound)</li>
+          <li>Supabase Row Level Security on all tables</li>
+          <li>Security headers: X-Frame-Options, HSTS, CSP</li>
+        </ul>
+
+        <div class="banner"><h2>Hosting &amp; Deployment</h2></div>
+        <ul class="bullets">
+          <li>Deployed on <strong>Vercel</strong> with automatic Git deployments</li>
+          <li>Environment variables for all secrets and config</li>
+          <li>PostgreSQL database hosted on <strong>Supabase</strong></li>
+          <li>Global CDN for static assets and product images</li>
+          <li>Zero-downtime deployments on every push</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout mb-5">
+      <p>The Make.com integration layer means email templates, routing rules, and downstream system connections can be modified without code changes to the portal itself.</p>
+    </div>
+
+    <div class="banner"><h2>API Endpoints</h2></div>
+    <div class="two-col" style="margin-top: 3mm;">
+      <div>
+        <table class="tech-table">
+          <thead><tr><th>Endpoint</th><th>Function</th></tr></thead>
+          <tbody>
+            <tr><td>/api/auth</td><td>Login (shop &amp; admin)</td></tr>
+            <tr><td>/api/orders</td><td>Create &amp; list orders</td></tr>
+            <tr><td>/api/orders/[id]</td><td>Get, update status, delete</td></tr>
+            <tr><td>/api/orders/[id]/quote</td><td>Generate quote PDF</td></tr>
+            <tr><td>/api/orders/[id]/order-list</td><td>Generate order list PDF</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <table class="tech-table">
+          <thead><tr><th>Endpoint</th><th>Function</th></tr></thead>
+          <tbody>
+            <tr><td>/api/orders/[id]/delivery-note</td><td>Generate delivery note</td></tr>
+            <tr><td>/api/orders/[id]/upload-po</td><td>Upload PO document</td></tr>
+            <tr><td>/api/orders/[id]/upload-dn</td><td>Upload delivery note</td></tr>
+            <tr><td>/api/orders/[id]/send-to-nest</td><td>Route to fulfilment</td></tr>
+            <tr><td>/api/contacts, sites, purchasers</td><td>CRUD management</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="pg-footer">
+    <span>onesignanddigital.com</span>
+    <span>6</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 7: SUMMARY & CTA
+     ═══════════════════════════════════════════════ -->
+<div class="page" style="background: var(--cream);">
+  <div class="pg-header">
+    <img class="logo-sm" src="screenshots/onesign-logo.png">
+    <span class="meta">Balfour Beatty Signage Portal &mdash; Platform Overview</span>
+    <div class="accent-line"></div>
+  </div>
+  <span class="section-num">06</span>
+  <div class="content">
+    <div class="banner" style="margin-bottom: 5mm;">
+      <h2>Platform Summary</h2>
+    </div>
+
+    <p class="text-mid fs-sm mb-5">The Balfour Beatty Signage Portal is a complete digital procurement system purpose-built for branded construction signage at scale.</p>
+
+    <div class="benefits mb-6">
+      <div class="benefit">
+        <div class="benefit-title">Self-Service Ordering</div>
+        <div class="benefit-desc">Site teams browse, customise, and order signage without phone calls or spreadsheets</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-title">Brand Consistency</div>
+        <div class="benefit-desc">Every product image carries the Balfour Beatty emblem. All documents and emails are branded.</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-title">Custom Capability</div>
+        <div class="benefit-desc">Bespoke signs, non-standard sizes, and site-specific fields handled within the same workflow</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-title">PO Workflow</div>
+        <div class="benefit-desc">Automated purchaser approval flow with token-protected document upload</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-title">Full Visibility</div>
+        <div class="benefit-desc">Admin dashboard with filters, search, status tracking, and document management</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-title">PDF Documents</div>
+        <div class="benefit-desc">Server-generated quotes, order lists, and delivery notes with Balfour Beatty branding</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-title">Automated Workflows</div>
+        <div class="benefit-desc">Make.com integration for email delivery, PO routing, and fulfilment system connectivity</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-title">Scalable &amp; Secure</div>
+        <div class="benefit-desc">Vercel hosting, Supabase database, server-side validation, and rate-limited authentication</div>
+      </div>
+    </div>
+
+    <div class="callout mb-6">
+      <p>One platform. Visual product selection. Structured ordering. Purchase order workflow. Complete visibility from site to sign.</p>
+    </div>
+
+    <div class="cta-section">
+      <h2>Get in Touch</h2>
+      <p class="cta-body">For questions about the platform, feature requests, or a live demonstration, reach out to the team.</p>
+      <p class="cta-email">mike@onesignanddigital.com</p>
+      <p class="cta-details">0191 487 6767 &nbsp;&bull;&nbsp; onesignanddigital.com</p>
+      <p class="cta-details" style="margin-top: 3mm; opacity: 0.6;">Onesign and Digital &mdash; D86 Princesway, Gateshead NE11 0TU</p>
+    </div>
+  </div>
+  <div class="pg-footer">
+    <span>onesignanddigital.com</span>
+    <span>7</span>
+  </div>
+</div>
+
+</body>
+</html>

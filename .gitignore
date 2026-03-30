@@ -13,8 +13,9 @@ node_modules/
 out/
 
 # Environment files
-.env.production
-.env.development
+.env
+.env.*
+shop/.env
 
 # OS files
 .DS_Store
